@@ -1,22 +1,39 @@
 import keras
+import os
 import numpy as np
 
 import SimpleITK as sitk
 
-from .dataset import readSeries
-from .annotations import tobbox
+from .tobbox import tobbox
+
+def readSeries(spath):
+    '''Read Series, the arg should be a directory/a single dcm file/a mhd file.
+    '''
+    if os.path.isdir(spath):
+        reader = sitk.ImageSeriesReader()
+        dcmNames = reader.GetGDCMSeriesFileNames(spath)
+        reader.SetFileNames(dcmNames)
+        img = reader.Execute()#x,y,z
+    elif os.path.isfile(spath):
+        img = sitk.ReadImage(spath)
+    else:
+        raise ValueError("invalid series path",spath)
+
+    return img
 
 def readImage(path, sides, *centroids, reader=readSeries, convert_centroids=True, verbose=False):
-    '''Read image patch from series directory.
+    '''Read image patch from series path.
 
     Args:
-        path        : Series directory.
+        path        : Series path.
         sides       : Respective side length, could be a single value(diameter) or a tuple (x,y,z).
-        centroids   : Image patch 's centroids, it should be 1-based, which are derived from annotations.
+        centroids   : Image patch 's centroids, zero-based.
         verbose     : Note that it should take the keyword form verbose=True  when set this option.
     Returns:
         arr_list    : List of image patch in form of ndarray with shape tuole(sides.reverse()) + (channels,).
         indices     : Indices list of valid patches.
+        new_centroids : centroids corresponding to indices in the isotropic space (convert_centroids == true) or the original space
+        isotropicSpace : function to convert point of this series to isotropic space.
     '''
     arr_list = []
     indices = []
@@ -30,22 +47,18 @@ def readImage(path, sides, *centroids, reader=readSeries, convert_centroids=True
         newc = np.array(transform.GetInverse().TransformPoint(newc))
         return newc
         
-        
     def isBboxValid(bbox,size):
         return np.all(bbox[::2] >= 0) and np.all(bbox[1::2] <= size ) 
 
-    #debug
-#    print('img size{}; array size {}'.format(img_size,sitk.GetArrayViewFromImage(img).shape))
     for idx,centroid in enumerate(centroids):
         #compute the new centroid in the resampled image
         if convert_centroids:
-            # Now the coordinates are zero-based, thus suitable for array-like indexing.
-            newc = isotropicSpace(centroid - 1)
+            newc = isotropicSpace(centroid)
         else:
             #centroid must have been converted
             newc = centroid
 
-        x = tobbox(newc.astype(int), sides)
+        x = tobbox(newc).astype(int)
         if not isBboxValid(x, resampled_size):
             if verbose:
                 print('sample {} with sides {} is out of image boundary {}.'.format(newc, sides, resampled_size))
@@ -63,10 +76,11 @@ def readImage(path, sides, *centroids, reader=readSeries, convert_centroids=True
         arr_list.append(arr)
         new_centroids.append(newc)
         indices.append(idx)
-#    return arr_list, indices
     return arr_list, indices, new_centroids, isotropicSpace
 
 def huwindowing(imgarr,level = 80,window = 600,outmin = 0,outmax=1):
+    '''housefield unit windowing for CT images
+    '''
     if window < 1:
         raise ValueError("window value should be not less than 1 but %.2f was received" % (window))
 
@@ -118,6 +132,8 @@ def transformImage(
     outputPixelType=sitk.sitkUnknown,
 ):
     '''Apply affine transform on a image.
+
+    This function require the input image has been placed on the standard domain.
 
     Args:
         image                : ndarray of (d, w, h, c)
