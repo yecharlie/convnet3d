@@ -58,7 +58,7 @@ def readImage(path, sides, *centroids, reader=readSeries, convert_centroids=True
             #centroid must have been converted
             newc = centroid
 
-        x = tobbox(newc).astype(int)
+        x = tobbox(newc, sides).astype(int)
         if not isBboxValid(x, resampled_size):
             if verbose:
                 print('sample {} with sides {} is out of image boundary {}.'.format(newc, sides, resampled_size))

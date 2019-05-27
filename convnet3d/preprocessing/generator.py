@@ -31,13 +31,12 @@ from ..utils.image import (
     transformImage,
     huwindowing
 )
-
 from ..utils.annotations import (
     readAnnotations,
     readClasses,
-    tobbox,
     openForCsv
 )
+from ..utils.tobbox import tobbox
 
 
 def windowingAndMinusMean(image, annotations):

@@ -4,8 +4,8 @@ import numpy as np
 import SimpleITK as sitk
 
 from .generator import Generator
-from ..utils.image import isotropic
-from ..utils.dataset import readSeries
+from ..utils.image import (isotropic, readSeries)
+from ..utils.tobbox import tobbox
 
 def makeIsotropic(image, annotations):
     resampled, transform = isotropic(image)
@@ -15,21 +15,14 @@ def makeIsotropic(image, annotations):
     return resampled, annotations
 
 def _transformBbox(box, image, transform):
-    def _tobbox(c, sides):
-        xi = np.asarray( c - sides / 2)
-        xj = np.asarray( xi + sides)
-        x = np.zeros(len(xi) * 2)
-        x[0::2] = xi
-        x[1::2] = xj
-        return x
     centroid = (box[::2] + box[1::2]) / 2
     sides = box[1::2] - box[::2]
     assert sides[0] == sides[1] == sides[2]
 
     #the diameter will not change as its the voxel coordinates in standard domain already.
-    newc = image.TransformContinuousIndexToPhysicalPoint(centroid.astype(np.float64) - 1)
+    newc = image.TransformContinuousIndexToPhysicalPoint(centroid.astype(np.float64))
     newc = np.array(transform.GetInverse().TransformPoint(newc))
-    return _tobbox(newc, sides)
+    return tobbox(newc, sides)
 
 class ValidationGenerator(Generator):
     #@overrides
@@ -40,7 +33,7 @@ class ValidationGenerator(Generator):
         
         image_path = self.image_names[image_index]
         image = readSeries(image_path)
-        #return a SimpleITK Image object intead of ndarray
+        #tricky: return a SimpleITK Image object intead of ndarray
         return image
 
 
