@@ -2,13 +2,12 @@ import pytest
 import keras
 import keras.backend as K
 from convnet3d import layers
+from convnet3d.utils.tobbox import tobbox
 
 import numpy as np
 
 import os
 
-
-os.environ['CUDA_VISIBLE_DEVICES']= '0'
 
 class TestBoxes(object):
     def test_simple(self):
@@ -166,17 +165,6 @@ class TestResizeBoxes(object):
 
         np.testing.assert_array_equal(actual_boxes, expected_boxes)
         np.testing.assert_array_equal(actual_labels,expected_labels)
-
-def tobbox(centroid,sides):
-    '''To Bonding box( NO ROUNDING VERSION)
-   '''
-    centroid = np.asarray(centroid, dtype=K.floatx())
-    xi = centroid - sides / 2
-    xj = xi + sides
-    x = np.zeros(len(xi) * 2, dtype=K.floatx())
-    x[0::2] = xi
-    x[1::2] = xj
-    return x
 
 class TestRegressBoxes(object):
     def test_simple(self):

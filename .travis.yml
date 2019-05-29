@@ -1,0 +1,17 @@
+language: python
+sudo: required
+python:
+    - '3.6'
+install:
+    - pip install 'numpy'
+    - pip install 'progressbar2'
+    - pip install 'keras'
+    - pip install 'SimpleITK'
+    - pip install 'deprecated'
+    - pip install 'tensorflow'
+    - pip install 'h5py'
+    - pip install 'pytest-flake8'
+cache: pip
+script:
+    - pytest -flake8
+
