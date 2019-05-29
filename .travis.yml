@@ -1,5 +1,4 @@
 sudo: required
-dist: xenial #ubuntu Xenial 16.04 distribution
 language: python
 virtualenv:
     system_site_packages:true #to include convnet3d package
