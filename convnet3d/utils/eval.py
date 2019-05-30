@@ -21,7 +21,6 @@ import keras.backend as K
 import numpy as np
 import os
 
-import cv2
 import progressbar
 assert(callable(progressbar.progressbar)), "Using wrong progressbar module, install 'progressbar2' instead."
 
