@@ -5,6 +5,7 @@ from convnet3d import layers
 from convnet3d.utils.tobbox import tobbox
 
 import numpy as np
+from numpy.testing import assert_almost_equal
 
 import os
 
@@ -198,7 +199,7 @@ class TestRegressBoxes(object):
             expb3
         ]], dtype=K.floatx())
 
-        np.testing.assert_allclose(actual_boxes, expected_boxes)
+        assert_almost_equal(actual_boxes, expected_boxes)
 
     def test_min_batch(self):
 
@@ -240,6 +241,6 @@ class TestRegressBoxes(object):
            [expb3, expb1, expb2]
         ], dtype=K.floatx())
 
-        np.testing.assert_allclose(actual_boxes, expected_boxes)
+        assert_almost_equal(actual_boxes, expected_boxes)
 
 
