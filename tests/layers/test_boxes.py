@@ -199,7 +199,7 @@ class TestRegressBoxes(object):
             expb3
         ]], dtype=K.floatx())
 
-        assert_almost_equal(actual_boxes, expected_boxes)
+        assert_almost_equal(actual_boxes, expected_boxes, decimal=6)
 
     def test_min_batch(self):
 
@@ -241,6 +241,6 @@ class TestRegressBoxes(object):
            [expb3, expb1, expb2]
         ], dtype=K.floatx())
 
-        assert_almost_equal(actual_boxes, expected_boxes)
+        assert_almost_equal(actual_boxes, expected_boxes, decimal=6)
 
 

@@ -14,7 +14,7 @@ def detectionLossOHEM():
         # others are classified as easy samples
         num_easy_samples = K.shape(cls_loss)[0] - num_hard_samples
 
-        # all hard samples are choosed 
+        # all hard samples are choosed
         hard_samples_indices = sort_indices[:num_hard_samples]
 
         # random choose a half of easy samples
