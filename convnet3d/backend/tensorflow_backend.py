@@ -12,7 +12,7 @@ def _is_tensor(x):
     Returns:
         `True` if `x` is a `tf.Tensor` or `tf.Variable`, otherwise `False`.
     """
-  return isinstance(x, (tf.Tensor, tf.Variable))
+    return isinstance(x, (tf.Tensor, tf.Variable))
 
 
 def _ImageDimensions(image, rank):
