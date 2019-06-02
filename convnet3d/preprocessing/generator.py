@@ -17,9 +17,7 @@ THIS FILE HAS BEEN MODIFIED.
 """
 
 import random
-import os
 import csv
-import warnings
 
 import numpy as np
 from six import raise_from
@@ -76,9 +74,9 @@ class Generator(keras.utils.Sequence):
 
         try:
             with openForCsv(csv_data_file) as file:
-                self.image_data = readAnnotations(csv.reader(file,delimiter=','),self.classes)
+                self.image_data = readAnnotations(csv.reader(file, delimiter=','), self.classes)
         except ValueError as e:
-            raise_from(ValueError('invalid CSV annotations file {}: {}'.format(csv_data_file,e)),None)
+            raise_from(ValueError('invalid CSV annotations file {}: {}'.format(csv_data_file, e)), None)
         self.image_names = list(self.image_data.keys())
 
         self.groupImages()
@@ -101,31 +99,31 @@ class Generator(keras.utils.Sequence):
     def labelToName(self, label):
         return self.labels[label]
 
-    def hasLabel(self,label):
+    def hasLabel(self, label):
         return label in self.labels
 
-    def hasName(self,name):
+    def hasName(self, name):
         return name in self.classes
 
-    def loadImage(self,image_index):
+    def loadImage(self, image_index):
         image_path = self.image_names[image_index]
         return np.load(image_path)
 
-    def loadAnnotations(self,image_index):
+    def loadAnnotations(self, image_index):
         annotations = self.image_data[self.image_names[image_index]]
         std_annotations = {
-            "bboxes":np.empty((0,6)),
-            "labels":np.empty((0,))
+            "bboxes": np.empty((0, 6)),
+            "labels": np.empty((0,))
         }
         for idx, an in enumerate(annotations):
-            std_annotations["labels"] = np.concatenate((std_annotations['labels'], [self.nameToLabel(an["class"])]),axis=0)
+            std_annotations["labels"] = np.concatenate((std_annotations['labels'], [self.nameToLabel(an["class"])]), axis=0)
             if 'coords' in an and 'diameter' in an:
                 centroid = an['coords']
                 diameter = an['diameter']
                 bbox = tobbox(centroid, diameter)
                 std_annotations['bboxes'] = np.concatenate(
                     [std_annotations['bboxes'],
-                    np.expand_dims(bbox, axis = 0)],axis=0
+                        np.expand_dims(bbox, axis = 0)],axis=0
                 )
 
         assert std_annotations['bboxes'].shape[0] == 0 or std_annotations['labels'].shape[0] == std_annotations['bboxes'].shape[0], 'unsupported dataset format with labels {}, bboxes {} for an image.'.format(std_annotations['labels'], std_annotations['bboxes'])
@@ -133,34 +131,33 @@ class Generator(keras.utils.Sequence):
         return std_annotations
 
 
-    def loadAnnotationsGroup(self,group):
+    def loadAnnotationsGroup(self, group):
         return [self.loadAnnotations(image_index) for image_index in group]
 
-    def loadImageGroup(self,group):
+    def loadImageGroup(self, group):
         return [self.loadImage(image_index) for image_index in group]
 
-    def randomTransformGroupEntry(self,image,annotations):
+    def randomTransformGroupEntry(self, image, annotations):
         def isPositiveSample(annotations):
             return self.nameToLabel('bg') not in annotations['labels']
 
         if self.transform_generator and isPositiveSample(annotations):
             matrix, translation = next(self.transform_generator)
 
-            image, transform = transformImage(image,matrix,translation,**self.kwargs)
+            image, transform = transformImage(image, matrix, translation, **self.kwargs)
             annotations['bboxes'] = annotations['bboxes'].copy()
             for index in range(annotations['bboxes'].shape[0]):
-                annotations['bboxes'][index, :] = transformBbox(annotations['bboxes'][index,:], transform)
+                annotations['bboxes'][index, :] = transformBbox(annotations['bboxes'][index, :], transform)
         return image, annotations
                 
-    def randomTransformGroup(self,image_group,annotation_group):
+    def randomTransformGroup(self, image_group, annotation_group):
         assert (len(image_group) == len(annotation_group))
 
         for index in range(len(image_group)):
             image_group[index], annotation_group[index] = self.randomTransformGroupEntry(image_group[index], annotation_group[index])
         return image_group, annotation_group
 
-
-    def preprocessGroupEntry(self,image,annotations):
+    def preprocessGroupEntry(self, image, annotations):
         """ Preprocess image and its annotations.
         """
         # preprocess the image
@@ -169,7 +166,7 @@ class Generator(keras.utils.Sequence):
         image = keras.backend.cast_to_floatx(image)
         return image, annotations
 
-    def preprocessGroup(self,image_group,annotations_group):
+    def preprocessGroup(self, image_group, annotations_group):
         """ Preprocess each image and its annotations in its group.
         """
         assert(len(image_group) == len(annotations_group))
@@ -184,8 +181,8 @@ class Generator(keras.utils.Sequence):
         order = list(range(self.size()))
         random.shuffle(order)
 
-        #one group, one batch
-        self.groups = [[order[x % len(order)] for x in range(i, i+self.batch_size)] for i in range(0, len(order), self.batch_size) ]
+        # one group, one batch
+        self.groups = [[order[x % len(order)] for x in range(i, i + self.batch_size)] for i in range(0, len(order), self.batch_size) ]
 
     def computeInputs(self, image_group):
         """ Compute inputs for the network using an image_group.
@@ -205,15 +202,15 @@ class Generator(keras.utils.Sequence):
 
         return image_batch
 
-    def computeTargets(self,image_group,annotations_group):
-        assert len(image_group)==len(annotations_group),"The length of the images and annotations should be equal."
+    def computeTargets(self, image_group, annotations_group):
+        assert len(image_group) == len(annotations_group), "The length of the images and annotations should be equal."
 
-        labels_batch = np.zeros((self.batch_size,),dtype=keras.backend.floatx())
-        for idx,an in enumerate(annotations_group):
-            labels_batch[idx]=an["labels"][0]
+        labels_batch = np.zeros((self.batch_size,), dtype=keras.backend.floatx())
+        for idx, an in enumerate(annotations_group):
+            labels_batch[idx] = an["labels"][0]
         return labels_batch
 
-    def computeInputOutput(self,group):
+    def computeInputOutput(self, group):
         """ Compute inputs and target outputs for the network.
         """
         # load images and annotations
@@ -237,8 +234,8 @@ class Generator(keras.utils.Sequence):
     def __len__(self):
         return len(self.groups)
 
-    def __getitem__(self,index):
+    def __getitem__(self, index):
         group = self.groups[index]
-        inputs,targets = self.computeInputOutput(group)
+        inputs, targets = self.computeInputOutput(group)
 
         return inputs, targets

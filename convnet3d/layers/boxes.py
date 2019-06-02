@@ -1,9 +1,9 @@
-#import warnings
 import keras
 import keras.backend as K
 import numpy as np
 
 from .. import backend
+
 
 class Boxes(keras.layers.Layer):
     def __init__(
@@ -11,7 +11,6 @@ class Boxes(keras.layers.Layer):
         box_size, 
         D=1,
         C=0, 
-#        num_classes=1, 
         parallel_iterations=32, 
         **kwargs
     ):
@@ -30,26 +29,23 @@ class Boxes(keras.layers.Layer):
             c = K.arange(shape[2])
             A,B,C = backend.meshgrid(a,b,c, indexing='ij')
             indices = K.concatenate([
-                K.expand_dims(A,axis=-1),
-                K.expand_dims(B,axis=-1),
-                K.expand_dims(C,axis=-1),
-                ],axis=-1
-            )
-            indices = K.reshape(indices,(-1,3))
-            indices = K.cast(indices,K.floatx())
+                K.expand_dims(A, axis=-1),
+                K.expand_dims(B, axis=-1),
+                K.expand_dims(C, axis=-1)
+            ], axis=-1)
+            indices = K.reshape(indices, (-1, 3))
+            indices = K.cast(indices, K.floatx())
             mapped = indices * self.D + self.C
             boxes = backend.tobbox(mapped, self.size)
-            probs = K.reshape(probs,(-1,shape[3]))
-            return [boxes, probs]#list! list! list!
+            probs = K.reshape(probs, (-1, shape[3]))
+            return [boxes, probs]  # list! list! list!
 
-
-        probs = inputs#Notes: inputs is not a list
+        probs = inputs  # Notes: inputs is not a list
         if K.image_data_format() == 'channels_first':
-            probs = K.permute_dimensions(probs,(0,2,3,4,1))
-            #Notes: from now on, data is inconsistent with image_data_format
-#            warnings.warn('The boxes layer has permuted data, which is no longer consistant with keras.backend.image_data_format()')
+            probs = K.permute_dimensions(probs, (0, 2, 3, 4, 1))
+
         probs_shape = K.int_shape(probs)
-        assert len(probs_shape) == 5,'The outputs shape of candidates screening model is inconsitent: {}.'.format(probs_shape)
+        assert len(probs_shape) == 5, 'The outputs shape of candidates screening model is inconsitent: {}.'.format(probs_shape)
 
 #        if probs_shape[-1] == num_classes + 1:
 #            print('Its detected that the backgroud class has been encoded into the result probabilites, retriving the leading {} channels probabilities out of {} chanels outputs.'.format(num_classes, probs_shape[-1]))
@@ -84,15 +80,10 @@ class Boxes(keras.layers.Layer):
         if num_boxes is not None:
             num_boxes /= channels
 
-#        if channels = self.num_classes + 1:
-#            probs_channels = channels - 1
-#        else:
-#            probs_channels = channels
-            
-        return [(batch_size, num_boxes, 6), (batch_size,num_boxes,channels)]
+        return [(batch_size, num_boxes, 6), (batch_size, num_boxes, channels)]
 
     def get_config(self):
-        config = super(Boxes,self).get_config()
+        config = super(Boxes, self).get_config()
         config.update({
             'D'                   : self.D.tolist(),
             'C'                   : self.C.tolist(),
@@ -100,6 +91,7 @@ class Boxes(keras.layers.Layer):
             'parallel_iterations' : self.parallel_iterations
         })
         return config
+
 
 class ResizeBoxes(keras.layers.Layer):
     '''keras layers for resizing the existed bounding boxes
@@ -127,7 +119,7 @@ class ResizeBoxes(keras.layers.Layer):
         def _resizeAll(elems, new_size = self.target_size):
             boxes = elems[0]
             labels = elems[1]
-            centroids = (boxes[:,1::2] + boxes[:,0::2]) // 2
+            centroids = (boxes[:, 1::2] + boxes[:, 0::2]) // 2
             resized   = backend.tobbox(centroids, new_size)
             return [resized, labels]
 
@@ -136,18 +128,18 @@ class ResizeBoxes(keras.layers.Layer):
             labels = elems[1]
             indices = backend.where(K.greater_equal(labels, 0))
             filtered_boxes = backend.gather_nd(boxes, indices)
-            centroids = (filtered_boxes[:,1::2] + filtered_boxes[:, 0::2]) // 2
+            centroids = (filtered_boxes[:, 1::2] + filtered_boxes[:, 0::2]) // 2
             resized   = backend.tobbox(centroids, new_size)
             ignored_indices = backend.where(K.less(labels, 0))
             ignored   = backend.gather_nd(boxes, ignored_indices)
             outputs_boxes   = K.concatenate([resized, ignored], axis = 0)
 
-            #The following operation is redundant
-            #because we know that the ignored boxes are
-            #at the trail.
+            # The following operation is redundant
+            # because we know that the ignored boxes are
+            # at the trail.
             outputs_labels  = K.concatenate([
-                K.gather(labels, indices)[:,0],
-                K.gather(labels, ignored_indices[:,0])
+                K.gather(labels, indices)[:, 0],
+                K.gather(labels, ignored_indices[:, 0])
             ])
             return [outputs_boxes, outputs_labels]
 
@@ -169,6 +161,7 @@ class ResizeBoxes(keras.layers.Layer):
             'parallel_iterations' : self.parallel_iterations
         })
 
+
 class ClipBoxes(keras.layers.Layer):
     '''Return Keras layers to clip box values to lie inside a given shape.
     '''
@@ -178,7 +171,7 @@ class ClipBoxes(keras.layers.Layer):
     def call(self, inputs):
         def _clipBoxes(inputs):
             boxes, shape = inputs
-            shape = K.cast(shape, K.floatx())#to avoid ValueError when do clip
+            shape = K.cast(shape, K.floatx())  # to avoid ValueError when do clip
             if K.image_data_format() == 'channels_first':
                 max_a = shape[2]
                 max_b = shape[3]
@@ -188,19 +181,20 @@ class ClipBoxes(keras.layers.Layer):
                 max_b = shape[2]
                 max_c = shape[3]
 
-            #Use backend.clip_by_value instead of K.clip
-            #because it raises a TypeError in some version of keras
-            a1 = backend.clip_by_value(boxes[:,:,0],0,max_a)
-            a2 = backend.clip_by_value(boxes[:,:,1],0,max_a)
-            b1 = backend.clip_by_value(boxes[:,:,2],0,max_b)
-            b2 = backend.clip_by_value(boxes[:,:,3],0,max_b)
-            c1 = backend.clip_by_value(boxes[:,:,4],0,max_c)
-            c2 = backend.clip_by_value(boxes[:,:,5],0,max_c)
-            return K.stack([a1,a2,b1,b2,c1,c2],axis=2)
+            # Use backend.clip_by_value instead of K.clip
+            # because it raises a TypeError in some version of keras
+            a1 = backend.clip_by_value(boxes[:, :, 0], 0, max_a)
+            a2 = backend.clip_by_value(boxes[:, :, 1], 0, max_a)
+            b1 = backend.clip_by_value(boxes[:, :, 2], 0, max_b)
+            b2 = backend.clip_by_value(boxes[:, :, 3], 0, max_b)
+            c1 = backend.clip_by_value(boxes[:, :, 4], 0, max_c)
+            c2 = backend.clip_by_value(boxes[:, :, 5], 0, max_c)
+            return K.stack([a1, a2, b1, b2, c1, c2], axis=2)
         return _clipBoxes(inputs)
 
     def compute_output_shape(self, input_shape):
         return input_shape[0]
+
 
 class RegressBoxes(keras.layers.Layer):
     '''Keras layer for applying regression values to boxes

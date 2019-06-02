@@ -5,6 +5,5 @@ if 'KERAS_BACKEND' in os.environ:
 
     assert _backend == 'tensorflow'
 
-from .tensorflow_backend  import *
-from .common import *
-
+from .tensorflow_backend import * # noqa: F403, F401
+from .common import * # noqa: F403, F401

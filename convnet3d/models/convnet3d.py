@@ -1,6 +1,5 @@
 import warnings
 import keras
-import keras.backend as K
 from six import raise_from
 from deprecated import deprecated
 from . import (
@@ -11,6 +10,7 @@ from . import (
 )
 from .. import layers
 from ..utils.index_mapping import IndexMap
+
 
 def convnet3dModel1b(
     fpr_model        = None,
@@ -47,7 +47,7 @@ def convnet3dModel1b(
             default_roi_size = (25, 60, 60)
             assert roi_size == default_roi_size
 
-            #the default fpr model
+            # the default fpr model
             fpr_model = reductionModel()
 
         sub_roi_models = submodels(fpr_model)
@@ -57,10 +57,10 @@ def convnet3dModel1b(
     assert len(sub_roi_models) == 1
 
     if not cs_model:
-        #the default cs model
+        # the default cs model
         cs_model = detectionModel()
 
-    #stage 1
+    # stage 1
     cs_pred = detectionPred(
         cs_model,
         map_args,
@@ -73,14 +73,14 @@ def convnet3dModel1b(
     image = inputs[0]
     proposals = cs_pred.outputs
     
-    #Stage 2
+    # Stage 2
     boxes  = proposals[0]
-    rois   = layers.RoiCropper(roi_size, name='roi_cropper')([image, boxes])#roi with one channel 
+    rois   = layers.RoiCropper(roi_size, name='roi_cropper')([image, boxes])  # roi with one channel 
 #    print('rois: {}; fpr_input_shape: {}.'.format(rois, fpr_input_shape))
 
     cls = keras.layers.TimeDistributed(sub_roi_models[0])(rois)
 
-    #do localization by classifiacation results only
+    # do localization by classifiacation results only
     return keras.models.Model(inputs=inputs, outputs=[cls, boxes])
 
 
@@ -120,7 +120,7 @@ def convnet3dModel(
             default_roi_size = (25, 60, 60)
             assert roi_size == default_roi_size
 
-            #the default fpr model
+            # the default fpr model
             fpr_model = reductionModel()
 
         sub_roi_models = submodels(fpr_model)
@@ -137,7 +137,7 @@ def convnet3dModel(
     roi_models_names = ['regression', 'classification']
 
     if not cs_model:
-        #the default cs model
+        # the default cs model
         cs_model = detectionModel()
 
     if not map_args:
@@ -145,9 +145,9 @@ def convnet3dModel(
             imap = IndexMap(cs_model)
             map_args = imap.D, imap.C
         except ValueError as e:
-            raise_from(ValueError('Couldn\'t automatically infer map arguments. Please set it manually.'),e)
+            raise_from(ValueError('Couldn\'t automatically infer map arguments. Please set it manually.'), e)
 
-    #Stage 1
+    # Stage 1
     inputs = cs_model.inputs
     image = inputs[0]
     image_shape = layers.Shape()(image)
@@ -171,31 +171,25 @@ def convnet3dModel(
         name='filter'
     )([boxes, probabilities])
 
-    #Stage 2
+    # Stage 2
     boxes  = proposals[0]
     labels = proposals[2]
-    rois    = layers.RoiCropper(roi_size, name='roi_cropper')([image, boxes])#roi with one channel 
+    rois    = layers.RoiCropper(roi_size, name='roi_cropper')([image, boxes])  # roi with one channel 
 #    print('rois: {}; fpr_input_shape: {}.'.format(rois, fpr_input_shape))
     vision_field, labels = layers.ResizeBoxes(roi_size, mode='all', name='cnn_vision_field')([boxes, labels])
 
     other_outputs = []
-    for idx,(name, roi_model) in enumerate(zip(roi_models_names, sub_roi_models)):
-       # run all the roi models
-       # Indeed, in our framework there are only teo submodels
-#       print('roi model {}, input shape is {}'.format(name, roi_model.input_shape))
-       output = keras.layers.TimeDistributed(roi_model)(rois)
-       if name == 'regression':
-           reg = output
-       elif name == 'classification':
-           cls = output
-       else:
-           other_outputs.append(output)
+    for idx, (name, roi_model) in enumerate(zip(roi_models_names, sub_roi_models)):
+        # run all the roi models
+        # Indeed, in our framework there are only teo submodels
+        output = keras.layers.TimeDistributed(roi_model)(rois)
+        if name == 'regression':
+            reg = output
+        elif name == 'classification':
+            cls = output
+        else:
+            other_outputs.append(output)
 
     reg_boxes  = layers.RegressBoxes(name='regress_boxes')([vision_field, reg])
 
-#uncomment the flowing line to get a complete model
     return keras.models.Model(inputs=inputs, outputs=[reg_boxes] + [reg, cls] + other_outputs)
-
-    #do localization by classifiacation results only
-#    return keras.models.Model(inputs=inputs, outputs=[cls, boxes])
-

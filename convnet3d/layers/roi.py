@@ -4,6 +4,7 @@ import keras
 import keras.backend as K
 from .. import backend 
 
+
 class RoiCropper(keras.layers.Layer):
     '''Cropping roi
     '''
@@ -11,7 +12,7 @@ class RoiCropper(keras.layers.Layer):
     def __init__(self, roi_size, parallel_iterations=32, **kwargs):
         self.roi_size = np.array(roi_size, dtype='int32')
         self.parallel_iterations = parallel_iterations
-        super(RoiCropper,self).__init__(**kwargs)
+        super(RoiCropper, self).__init__(**kwargs)
 
     def call(self, inputs, **kwargs):
         image, boxes = inputs
@@ -29,6 +30,7 @@ class RoiCropper(keras.layers.Layer):
 
         def _crop(args, target_size = self.roi_size):
             image, boxes = args
+
             def wrapped_crop_to_bounding_box(box):
                 return backend.crop_to_bounding_box_3d(image, box, target_size)
 
@@ -47,7 +49,7 @@ class RoiCropper(keras.layers.Layer):
         )
         return cropped_batch
 
-    def get_config():
+    def get_config(self):
         config = super(RoiCropper, self).get_config()
         config.update(
 
@@ -63,4 +65,3 @@ class RoiCropper(keras.layers.Layer):
             channels = input_shape[0][1]
             roi_shape = (channels,) + tuple(self.roi_size)
         return (input_shape[0][0] , input_shape[1][1]) + roi_shape
-

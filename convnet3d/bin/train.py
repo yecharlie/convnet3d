@@ -4,22 +4,21 @@ import sys
 
 import keras
 import tensorflow as tf
-#:print(__name__,'__package__:',__package__)
+# print(__name__,'__package__:',__package__)
 
 if __name__ == "__main__" and __package__ is None:
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__),'..','..',))
-    import convnet3d.bin
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+    import convnet3d.bin # noqa: F401
     __package__ = "convnet3d.bin"
 
 from .. import models
 from .. import losses
 from ..preprocessing.generator import Generator
-from ..preprocessing.detection_generator import DetectionGenerator 
-from ..preprocessing.reduction_generator import ReductionGenerator
 from ..preprocessing.val_generator import ValidationGenerator
 
 from ..utils.transform import randomTransformGenerator
 from ..callbacks import (RedirectModel, Evaluate)
+
 
 def get_session():
     '''Construct a modified tf session
@@ -28,6 +27,7 @@ def get_session():
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
     return tf.Session(config=config)
+
 
 def create_generators(args):
     if args.random_transform:
@@ -39,7 +39,7 @@ def create_generators(args):
             flip_x_chance = 0.5,
             flip_y_chance = 0.5,
             min_translation = (-0.1, -0.1, -0.1),
-            max_translation = (0.1,0.1,0.1)
+            max_translation = (0.1, 0.1, 0.1)
         )
     else:
         transform_generator = None
@@ -67,61 +67,6 @@ def create_generators(args):
     return train_generator, validation_generator
  
 
-#    #preporcess for lung nodule (temporary)
-#    from ..utils.image import huwindowing
-#    def windowing(image, annotations):
-#        x = image
-#        x = x.astype(keras.backend.floatx())
-#        x = huwindowing(x, level=-600, window=1200, outmin = 0, outmax = 255)
-#        return x, annotations
-#        
-#
-#    if args.model_type == 'cs':
-#        train_generator = DetectionGenerator(
-#            args.annotations,
-#            args.classes,
-#            batch_size = args.batch_size,
-#            preprocessImage=windowing,
-#            transform_generator=transform_generator
-#        )
-#    else:
-#        train_generator = ReductionGenerator(
-#            args.annotations,
-#            args.classes,
-#            batch_size = args.batch_size,
-#
-#            preprocessImage=windowing,
-#            transform_generator=transform_generator
-#        )
-#
-##    if args.model_type == 'fpr' and args.val_cs_model and args.val_annotations:
-##        validation_generator = ValidationGenerator(
-##            args.val_annotations,
-##            args.classes,
-##            batch_size = 1,
-###            preprocessImage=lambda x:x
-##        )
-#    if args.model_type == 'fpr' and args.val_annotations:
-#        validation_generator = ReductionGenerator(
-#            args.val_annotations,
-#            args.classes,
-#            preprocessImage=windowing,
-#            batch_size = args.batch_size
-#        )
-# 
-#    elif args.model_type == 'cs' and  args.val_annotations:
-#        validation_generator = DetectionGenerator(
-#            args.val_annotations,
-#            args.classes,
-#            preprocessImage=windowing,
-#            batch_size = args.batch_size
-#        )
-#    else:
-#        validation_generator = None
-#
-#    print('VAL-GEN-BATCH',validation_generator.batch_size if validation_generator else None,' type', type(validation_generator))
-#    return train_generator, validation_generator
-
 def create_models(num_classes, args):
     if args.model_type == 'cs':
         model = models.detectionModel(num_classes = num_classes, input_feature_size = args.data_channels)
@@ -137,7 +82,7 @@ def create_models(num_classes, args):
         )
     elif args.model_type == 'fpr':
         if args.val_cs_weights:
-            #initiate fpr model with cs model weights
+            # initiate fpr model with cs model weights
             model = models.reductionModel1b(num_classes = num_classes, input_feature_size = args.data_channels, cs_model_path=args.val_cs_model)
         else:
             model = models.reductionModel1b(num_classes = num_classes, input_feature_size = args.data_channels)
@@ -149,56 +94,47 @@ def create_models(num_classes, args):
             prediction_model = models.convnet3dModel1b(model, cs_model)
         else:
             prediction_model = model
-        
+
         training_model.compile(
             loss={
-#                'regression'     : losses.reductionRegLoss(),
                 'classification' : keras.losses.sparse_categorical_crossentropy
             },
-#            loss_weights={
-#                'regression'     : 0.5,
-#                'classification' : 1
-#            },
             optimizer=keras.optimizers.adam(lr=1e-5, clipnorm=0.001)
         )
 
     return model, training_model, prediction_model
 
+
 def create_callbacks(model, training_model, prediction_model, validation_generator, args):
     callbacks = []
 
     if args.snapshots:
-       os.makedirs(args.snapshot_path, exist_ok=True) 
-       checkpoint = keras.callbacks.ModelCheckpoint(
-           os.path.join(
+        os.makedirs(args.snapshot_path, exist_ok=True)
+        checkpoint = keras.callbacks.ModelCheckpoint(
+            os.path.join(
                 args.snapshot_path,
                 '{model_type}_{{epoch:02d}}.h5'.format(model_type=args.model_type)
-           ),
-           verbose=1
-       )
-       checkpoint = RedirectModel(checkpoint, model)
-       callbacks.append(checkpoint)
+            ),
+            verbose=1
+        )
+        checkpoint = RedirectModel(checkpoint, model)
+        callbacks.append(checkpoint)
 
     tensorboard_callback = None
     if args.tensorboard_dir:
         tensorboard_callback = keras.callbacks.TensorBoard(
-             log_dir = args.tensorboard_dir,
-             histogram_freq         = 0,
-             batch_size             = args.batch_size,
-             write_graph            = True,
-             write_grads            = False,
-             write_images           = False,
-             embeddings_freq        = 0,
-             embeddings_layer_names = None,
-             embeddings_metadata    = None
+            log_dir = args.tensorboard_dir,
+            histogram_freq         = 0,
+            batch_size             = args.batch_size,
+            write_graph            = True,
+            write_grads            = False,
+            write_images           = False,
+            embeddings_freq        = 0,
+            embeddings_layer_names = None,
+            embeddings_metadata    = None
         )
         callbacks.append(tensorboard_callback)
- 
-#    if args.model_type == 'fpr' and args.val_cs_model and args.val_annotations:
-#        evaluation = Evaluate(validation_generator, tensorboard=tensorboard_callback)
-#        evaluation = RedirectModel(evaluation, prediction_model)
-#        callbacks.append(evaluation)
- 
+
     if args.val_annotations:
         if args.model_type == 'cs':
             evaluation = Evaluate(validation_generator, mode='recall', tensorboard=tensorboard_callback)
@@ -229,17 +165,18 @@ def create_callbacks(model, training_model, prediction_model, validation_generat
     ))
     return callbacks
 
+
 def parse_args(args):
     '''Parse the arguments
     '''
     parser = argparse.ArgumentParser(description='Simple training script for training the candidate screening model & false positive reduction model.')
     subparsers = parser.add_subparsers(help='Specitic the model type: cs/fpr.', dest='model_type')
     subparsers.required = True
-    cs_parser = subparsers.add_parser('cs')
+    cs_parser = subparsers.add_parser('cs') # noqa: F841
     fpr_parser = subparsers.add_parser('fpr')
     fpr_parser.add_argument('--val-cs-model', help='Path to candidate screening model, then the two model are combined to biuld a convnet3d model for validation.')
 
-    group=parser.add_mutually_exclusive_group()
+    group = parser.add_mutually_exclusive_group()
     group.add_argument('--snapshot')
     group.add_argument('--no-weights', dest='val_cs_weights', action='store_const', const=False)
     group.add_argument('--val-cs-weights', action='store_true')
@@ -261,6 +198,7 @@ def parse_args(args):
     parser.add_argument('--data-channels', default=1, type=int)
     return check_args(parser.parse_args(args))
 
+
 def check_args(parsed_args):
     if parsed_args.val_cs_weights:
         if parsed_args.model_type == 'cs':
@@ -279,7 +217,7 @@ def main(args=None):
     args = parse_args(args)
 
     if args.gpu:
-        os.environ['CUDA_VISIBLE_DEVICES']=args.gpu[0]
+        os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu[0]
 
     keras.backend.tensorflow_backend.set_session(get_session())
 
@@ -304,12 +242,6 @@ def main(args=None):
         args
     )
 
-#    plain_validation_args={}
-#    if validation_generator and not getattr(args, 'val_cs_model', None):
-#    #if validation data of patches are provided, instead of calculating mAP, we get the loss of validation data only.
-#        plain_validation_args.update(
-#            validation_data = validation_generator
-#        )
 
     #training
     training_model.fit_generator(
@@ -317,9 +249,8 @@ def main(args=None):
         epochs=args.epochs,
         verbose=1,
         callbacks=callbacks
-#        validation_data=validation_generator
-#        **plain_validation_args
     )
-        
+
+
 if __name__ == '__main__':
     main()

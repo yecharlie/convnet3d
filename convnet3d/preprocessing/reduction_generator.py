@@ -4,8 +4,9 @@ import keras
 from deprecated import deprecated
 from .generator import Generator
 
+
 def _computeTargets(image_group, annotations_group, mean=None, std=None):
-    assert len(image_group)==len(annotations_group),"The length of the images and annotations should be equal."
+    assert len(image_group)==len(annotations_group), "The length of the images and annotations should be equal."
 
     if mean is None:
         mean = [0, 0, 0, 0]
@@ -13,16 +14,16 @@ def _computeTargets(image_group, annotations_group, mean=None, std=None):
         std = [0.2, 0.2, 0.2, 0.2]
 
     batch_size = len(image_group)
-    regression_batch = np.zeros((batch_size, 5),dtype=keras.backend.floatx())#the last elem stores label
+    regression_batch = np.zeros((batch_size, 5), dtype=keras.backend.floatx())  # the last elem stores label
     labels_batch = np.zeros((batch_size,))
-    for i,(img, an) in enumerate(zip(image_group, annotations_group)):
+    for i, (img, an) in enumerate(zip(image_group, annotations_group)):
         if keras.backend.image_data_format() == 'channels_last':
             depth, width, height, channels = img.shape
         else:
             channels, depth, width, height = img.shape
 
-        #NOTE: because we desire the output to directly regress coordinates related to x,y,z,
-        #here we use (height, width, depth) to form the target.
+        # NOTE: because we desire the output to directly regress coordinates related to x,y,z,
+        # here we use (height, width, depth) to form the target.
         img_cent = np.array([height // 2, width // 2, depth // 2])
         diagonal = np.sqrt(np.square(height) + np.square(width) + np.square(depth))
         if an['bboxes'].shape[0] > 0:
@@ -35,13 +36,14 @@ def _computeTargets(image_group, annotations_group, mean=None, std=None):
             regression_batch[i][:3] = (tc - mean[:3]) / std[:3]
             regression_batch[i][3] = (td - mean[3]) / std[3]
         else:
-            #negative sample
+            # negative sample
             regression_batch[i][:4] = -1
 
         regression_batch[i][4] = an['labels'][0]
         labels_batch[i] = an['labels'][0]
 
     return [regression_batch, labels_batch]
+
 
 @deprecated(reason='this generator is maded for convnet3d2b. use Generator for convnet3d1b')
 class ReductionGenerator(Generator):

@@ -1,7 +1,8 @@
 import keras
 from keras import backend as K
 
-def ResidualUnit(coptions1,coptions2,ruid):
+
+def ResidualUnit(coptions1, coptions2, ruid):
     '''A Residual Unit
 
     Structure:
@@ -17,11 +18,11 @@ def ResidualUnit(coptions1,coptions2,ruid):
     These layers 's names are set properly based on 'ruid'.
     '''
     def _ResidualUnit(inputs):
-        layers_names = ['RU{}-BN1','RU{}-A1','RU{}-C1','RU{}-BN2','RU{}-A2','RU{}-C2','RU{}-Add']
+        layers_names = ['RU{}-BN1', 'RU{}-A1', 'RU{}-C1', 'RU{}-BN2', 'RU{}-A2', 'RU{}-C2', 'RU{}-Add']
         layers_names = [ ln.format(ruid) for ln in layers_names]
 
         outputs = BatchNorm(name=layers_names[0])(inputs)
-        outputs = keras.layers.Activation('relu',name=layers_names[1])(outputs)
+        outputs = keras.layers.Activation('relu', name=layers_names[1])(outputs)
 
         coptions1.update(
             name=layers_names[2],
@@ -29,7 +30,7 @@ def ResidualUnit(coptions1,coptions2,ruid):
         )
         outputs = CBALayers(
             coptions1,
-            {'name':layers_names[3]},
+            {'name': layers_names[3]},
             name=layers_names[4]
         )(outputs)
 
@@ -37,16 +38,16 @@ def ResidualUnit(coptions1,coptions2,ruid):
             name=layers_names[5],
             padding='same',
             strides=1,
-            kernel_initializer=keras.initializers.normal(mean=0.0,stddev=0.01,seed=None),
+            kernel_initializer=keras.initializers.normal(mean=0.0, stddev=0.01, seed=None),
             bias_initializer='zeros'
         )
         outputs = keras.layers.Conv3D(**coptions2)(outputs)
-        outputs = keras.layers.Add(name=layers_names[6])([inputs,outputs])
+        outputs = keras.layers.Add(name=layers_names[6])([inputs, outputs])
         return outputs
     return _ResidualUnit
 
 
-def CBALayers(coptions,boptions={},activation='relu',**kwargs):
+def CBALayers(coptions, boptions={}, activation='relu', **kwargs):
     '''Add convolution-batchnorm-activation layer successively
 
     The default choice:
@@ -68,9 +69,9 @@ def CBALayers(coptions,boptions={},activation='relu',**kwargs):
     def _CBALayers(inputs):
         cur_coptions = {
             "padding"     : 'valid',
-            "strides"      : 1,
-            'kernel_initializer':keras.initializers.normal(mean=0.0,stddev=0.01,seed=None),
-            'bias_initializer':'zeros'
+            "strides"     : 1,
+            'kernel_initializer': keras.initializers.normal(mean=0.0, stddev=0.01, seed=None),
+            'bias_initializer': 'zeros'
         }
         cur_coptions.update(coptions)
         outputs = keras.layers.Conv3D(**cur_coptions)(inputs)
@@ -84,30 +85,33 @@ def CBALayers(coptions,boptions={},activation='relu',**kwargs):
 
 def BatchNorm(**kwargs):
     def _BatchNorm(inputs):
-        boptions = {'axis':1 if K.image_data_format() == 'channels_first' else -1}
+        boptions = {'axis': 1 if K.image_data_format() == 'channels_first' else -1}
         boptions.update(kwargs)
         return keras.layers.normalization.BatchNormalization(**boptions)(inputs)
 
     return _BatchNorm
  
+
 def submodels(model):
-    models=[keras.models.Model(inputs=model.inputs, outputs=output) for output in model.outputs]
+    models = [keras.models.Model(inputs=model.inputs, outputs=output) for output in model.outputs]
     return models
+
 
 def loadModel(filepath):
     import keras.models
 
     from .. import losses
-    custom_objects={'_reductionRegLoss':losses.reductionRegLoss()}
+    custom_objects = {'_reductionRegLoss': losses.reductionRegLoss()}
     return keras.models.load_model(filepath, custom_objects=custom_objects)
 
-#import model
-from .candidates_screening import (
+
+# import models
+from .candidates_screening import (  # noqa: F401
     detectionModel,
     detectionPred)
-from .false_positives_reduction import (
+from .false_positives_reduction import (  # noqa: F401
     reductionModel,
     reductionModel1b)
-from .convnet3d import (
+from .convnet3d import (  # noqa: F401
     convnet3dModel,
     convnet3dModel1b)

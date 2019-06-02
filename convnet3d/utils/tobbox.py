@@ -1,8 +1,9 @@
 import numpy as np
 from collections import Iterable
 
+
 def tobbox(centroid, sides):
-    if isinstance(sides,Iterable):
+    if isinstance(sides, Iterable):
         assert len(sides) == len(centroid)
         sides = np.asarray(sides)
     centroid = np.asarray(centroid)
@@ -13,4 +14,3 @@ def tobbox(centroid, sides):
     x[0::2] = xi
     x[1::2] = xj
     return x
-

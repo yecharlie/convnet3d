@@ -1,9 +1,9 @@
 import sys
-import math
 import numpy as np
 
 from six import raise_from
 from collections import Iterable
+from deprecated import deprecated
 
 def openForCsv(path):
     """ Open a file with flags suitable for csv.reader.
@@ -14,6 +14,7 @@ def openForCsv(path):
         return open(path, 'rb')
     else:
         return open(path, 'r', newline='')
+
 
 def parse(value, function, fmt):
     """
@@ -27,7 +28,9 @@ def parse(value, function, fmt):
     except ValueError as e:
         raise_from(ValueError(fmt.format(e)), None)
 
-def tobbox(centroid,sides):
+
+@deprecated(reason='use tobbox in tobbox module instead, this function is a rounding version', version='1.0.0')
+def tobbox(centroid, sides):
     '''To Bonding box
 
     Convert a cube coordinates to the form like [x1,x2,y1,y2,z1,z2]
@@ -38,19 +41,20 @@ def tobbox(centroid,sides):
     Returns:
         x           : ndarray of (6,), one could get a patch from array[x[0]:x[1],x[2]:x[3],x[4]:x[5]].
     '''
-    if isinstance(sides,Iterable):
+    if isinstance(sides, Iterable):
         assert len(sides) == len(centroid)
         sides = np.asarray(sides)
     centroid = np.asarray(centroid)
 
-    xi = np.asarray( centroid - sides / 2,dtype=int)
+    xi = np.asarray( centroid - sides / 2, dtype=int)
     xj = np.asarray( xi + sides, dtype=int)
-    x = np.zeros(len(xi) * 2,dtype=int)
+    x = np.zeros(len(xi) * 2, dtype=int)
     x[0::2] = xi
     x[1::2] = xj
     return x
 
-def computeOverlaps(boxes,query_boxes):
+
+def computeOverlaps(boxes, query_boxes):
     '''Compute Overlaps
 
     Args
@@ -62,27 +66,27 @@ def computeOverlaps(boxes,query_boxes):
     '''
     N = boxes.shape[0]
     K = query_boxes.shape[0]
-    overlaps = np.zeros((N,K))
-    for i,b in enumerate( boxes ):
-        #calculate volume b
+    overlaps = np.zeros((N, K))
+    for i, b in enumerate( boxes ):
+        # calculate volume b
         b_volume = 1
-        for di in range(1,len(b),2):
-            b_volume *= b[di] - b[di-1]
+        for di in range(1, len(b), 2):
+            b_volume *= b[di] - b[di - 1]
 
-        for j,qb in enumerate( query_boxes ):
+        for j, qb in enumerate(query_boxes ):
             try:
-                #calculate intersection volume of ba nd qb
+                # calculate intersection volume of ba nd qb
                 intersection_volume = 1
-                axis_iter = iter(range(1,len(b),2))
+                axis_iter = iter(range(1, len(b), 2))
                 while intersection_volume > 0 :
                     k = next(axis_iter)
-                    intersection_volume *= min(b[k],qb[k]) - max(b[k-1],qb[k-1])
+                    intersection_volume *= min(b[k], qb[k]) - max(b[k - 1], qb[k - 1])
             except StopIteration:
-                #when intersection volume > 0
-                #calculate volume qb
+                # when intersection volume > 0
+                # calculate volume qb
                 qb_volume = 1
-                for di in range(1,len(qb),2):
-                    qb_volume *= qb[di] - qb[di-1]
+                for di in range(1, len(qb), 2):
+                    qb_volume *= qb[di] - qb[di - 1]
                 union_volume = b_volume + qb_volume - intersection_volume
                 overlaps[i][j] = intersection_volume / union_volume
     return overlaps
@@ -105,7 +109,7 @@ def readAnnotations(csv_reader, classes):
         try:
             img_file, class_name, x, y, z, d = row[:6]
             if len(row) > 6:
-                dic = {'others':row[6:]}
+                dic = {'others': row[6:]}
             else:
                 dic = {}
         except ValueError:
@@ -117,24 +121,25 @@ def readAnnotations(csv_reader, classes):
         if class_name not in classes:
             raise ValueError('line {}: unknown class name: \'{}\' (classes: {})'.format(line, class_name, classes))
 
-        dic.update({'class':class_name})
-        if (x,y,z,d) == ('','','',''):
+        dic.update({'class': class_name})
+        if (x, y, z, d) == ('', '', '', ''):
             result[img_file].append(dic)
             continue
             
         x = parse(x, float, 'line {}: malformed x: {{}}'.format(line))
         y = parse(y, float, 'line {}: malformed y: {{}}'.format(line))
         z = parse(z, float, 'line {}: malformed z: {{}}'.format(line))
-        dic.update({'coords':np.array([x,y,z])})
+        dic.update({'coords': np.array([x, y, z])})
         if d == '':
             result[img_file].append(dic)
             continue
 
         d = parse(d, float, 'line {}: malformed d: {{}}'.format(line))
-        dic.update({'diameter':d})
+        dic.update({'diameter': d})
         result[img_file].append(dic)
 
     return result
+
 
 def readClasses(csv_reader):
     """ Parse the classes file given by csv_reader.
@@ -157,4 +162,3 @@ def readClasses(csv_reader):
         raise ValueError('Bockgound mapping error (should be "bg"-> 0)')
         
     return result
-

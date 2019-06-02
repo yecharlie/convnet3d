@@ -19,7 +19,6 @@ THIS FILE HAS BEEN MODIFIED.
 import keras
 import keras.backend as K
 import numpy as np
-import os
 
 import progressbar
 assert(callable(progressbar.progressbar)), "Using wrong progressbar module, install 'progressbar2' instead."
@@ -46,22 +45,17 @@ def _computeAP(recall, precision):
     mrec = np.concatenate(([0.], recall, [1.]))
     mpre = np.concatenate(([0.], precision, [0.]))
 
-
     # compute the precision envelope
     for i in range(mpre.size - 1, 0, -1):
         mpre[i - 1] = np.maximum(mpre[i - 1], mpre[i])
-
 
     # to calculate area under PR curve, look for points
     # where X axis (recall) changes value
     i = np.where(mrec[1:] != mrec[:-1])[0]
 
-
     # and sum (\Delta recall) * prec
     ap = np.sum((mrec[i + 1] - mrec[i]) * mpre[i + 1])
     return ap
-
-
 
 
 def getResults(
@@ -89,10 +83,9 @@ def getResults(
     # Returns
         A list of lists containing the detections for each image in the generator.
     """
-    all_detections = [[np.empty((0,7)) for i in range(generator.numClasses()) if generator.hasLabel(i)] for j in range(generator.size())]
+    all_detections = [[np.empty((0, 7)) for i in range(generator.numClasses()) if generator.hasLabel(i)] for j in range(generator.size())]
 
-
-    all_annotations = [[np.empty((0,6)) for i in range(generator.numClasses())] for j in range(generator.size())]
+    all_annotations = [[np.empty((0, 6)) for i in range(generator.numClasses())] for j in range(generator.size())]
     for i in progressbar.progressbar(range(generator.size()), prefix='Running network: '):
         # load the annotations
         annotations  = generator.loadAnnotations(i)
@@ -106,38 +99,36 @@ def getResults(
 
             all_annotations[i][label] = annotations['bboxes'][annotations['labels'] == label, :].copy()
 
-
         image_size = image.shape[:3]
 
         if keras.backend.image_data_format() == 'channels_first':
             image = image.transpose((3, 0, 1, 2))
 
-#        print('IMG-SHAPE',image.shape)
-
-        #while directly apply model to a whole volume will raise an OOM error, we add a prior-windowing operation instead.
+        # while directly apply model to a whole volume will raise an OOM error, we add a prior-windowing operation instead.
         if window_size is not None and sliding_strides is not None:
-            #Note the order z,y,x
+            # Note the order z,y,x
             windows_offset = windowing(image_size, window_size, sliding_strides)
-        else:#i.e. no windowing
-            windows_offset = np.zeros((1,3), dtype=int)
+        else:# i.e. no windowing
+            windows_offset = np.zeros((1, 3), dtype=int)
             window_size = image_size
 
-        #create window
+        # create window
         if keras.backend.image_data_format() == 'channels_last':
             window = np.zeros(tuple(window_size) + (image.shape[3],), dtype=K.floatx())
         else:
             window = np.zeros((image.shape[0],) + tuple(window_size), dtype=K.floatx())
 
-        image_detections = np.empty((0,6+1+1))#boxes + socres + labels
+        image_detections = np.empty((0, 6 + 1 + 1))  # boxes + socres + labels
         for ofs in windows_offset:
-            #padding window
+            # padding window
             if keras.backend.image_data_format() == 'channels_last':
-                window[:,:,:,:] = image[
+                window[:, :, :, :] = image[
                     ofs[0]:ofs[0] + window_size[0],
                     ofs[1]:ofs[1] + window_size[1],
-                    ofs[2]:ofs[2] + window_size[2],:] 
+                    ofs[2]:ofs[2] + window_size[2], :] 
             else:
-                window[:,:,:,:] = image[:,
+                window[:, :, :, :] = image[
+                    :,
                     ofs[0]:ofs[0] + window_size[0],
                     ofs[1]:ofs[1] + window_size[1],
                     ofs[2]:ofs[2] + window_size[2]] 
@@ -145,29 +136,29 @@ def getResults(
             def convnet3dOneBatchdOutputsTransfer(outputs):
                 classification, boxes = outputs[:2]
 
-                #different from regressed boxes (at below, commented), these boxes used the coordinates (z,y,x)
-                boxes = boxes[:,:,[4,5,2,3,0,1]]
+                # different from regressed boxes (at below, commented), these boxes used the coordinates (z,y,x)
+                boxes = boxes[:, :, [4, 5, 2, 3, 0, 1]]
 
                 scores = classification.max(axis=1)
                 labels = classification.argmax(axis=1)
                 return boxes, scores, labels
 
             def detectionPredTransfer(outputs):
-                boxes, scores, labels =  outputs[:3]
+                boxes, scores, labels = outputs[: 3]
 
-                #different from regressed boxes (at below), these boxes used the coordinates (z,y,x)
-                boxes = boxes[:,:,[4,5,2,3,0,1]]
+                # different from regressed boxes (at below), these boxes used the coordinates (z,y,x)
+                boxes = boxes[:, :, [4, 5, 2, 3, 0, 1]]
                 return boxes, scores, labels
 
             def convnet3dTwoBatchdOutputsTransfer(outputs):
-                #JUST FOR DEMON, NOT USE!
+                # JUST FOR DEMON, NOT USE!
 
                 reg_boxes, regression, classification = outputs[:3]
                 scores = classification.max(axis=1)
                 labels = classification.argmax(axis=1)
                 return reg_boxes, scores, labels
 
-            if transfer=='convnet3d-1b':
+            if transfer == 'convnet3d-1b':
                 transfer = convnet3dOneBatchdOutputsTransfer
             elif transfer == 'detection-pred':
                 transfer = detectionPredTransfer
@@ -186,7 +177,7 @@ def getResults(
 
             # select detections
             window_boxes      = boxes[0, indices[scores_sort], :]
-            window_boxes     += np.array([ofs[2], ofs[2], ofs[1], ofs[1], ofs[0], ofs[0]])#Note the order
+            window_boxes     += np.array([ofs[2], ofs[2], ofs[1], ofs[1], ofs[0], ofs[0]])  # Note the order
 #            print('ofs={} window_size={} when the first thress boxes are {}'.format(ofs, window_size, window_boxes[:3]))
             window_scores     = scores[scores_sort]
             window_labels     = labels[0, indices[scores_sort]]
@@ -198,21 +189,21 @@ def getResults(
             scores = image_detections[:, 6]
             overlaps = computeOverlaps(boxes, boxes)
 
-            #get valid boxes
-            vi = np.where(overlaps.diagonal()==1)[0]
-            overlaps = overlaps[np.expand_dims(vi, axis=-1) ,vi]
-            #filter
+            # get valid boxes
+            vi = np.where(overlaps.diagonal() == 1)[0]
+            overlaps = overlaps[np.expand_dims(vi, axis=-1), vi]
+            # filter
             image_detections = image_detections[vi]
             scores = scores[vi]
 
             indices = nmsOverlaps(overlaps, scores, overlap_threshold)
             return image_detections[indices]
 
-        #non-max-suppression could eliminate the side effect of overlapped windowing
+        # non-max-suppression could eliminate the side effect of overlapped windowing
         if nms:
             image_detections = nms(image_detections, overlap_threshold)
 
-        #at last, get top_k detections
+        # at last, get top_k detections
         image_scores = image_detections[:,6]
         scores_sort = np.argsort(-image_scores)[:max_detections]
         image_detections = image_detections[scores_sort]
@@ -229,47 +220,15 @@ def getResults(
     return all_detections, all_annotations
 
 
-
-
-#def _getAnnotations(generator):
-#    """ Get the ground truth annotations from the generator.
-#
-#    The result is a list of lists such that the size is:
-#        all_annotations[num_images][num_classes] = annotations[num_annotations, 6]
-#
-#    # Arguments
-#        generator : The generator used to retrieve ground truth annotations.
-#    # Returns
-#        A list of lists containing the annotations for each image in the generator.
-#    """
-#    all_annotations = [[np.empty((0,6)) for i in range(generator.numClasses())] for j in range(generator.size())]
-#
-#    for i in progressbar.progressbar(range(generator.size()), prefix='Parsing annotations: '):
-#        # load the annotations
-#        annotations = generator.loadAnnotations(i)
-#
-#
-#        # copy detections to all_annotations
-#        for label in range(generator.numClasses()):
-#            if not generator.hasLabel(label):
-#                continue
-#
-#
-#            all_annotations[i][label] = annotations['bboxes'][annotations['labels'] == label, :].copy()
-#
-#
-#    return all_annotations
-
-
-
 def hitTesting(query_boxes, boxes):
-    testing_points = (query_boxes[:,1::2] + query_boxes[:,::2]) / 2
-    targets_points = (boxes[:,1::2] + boxes[:,::2]) / 2
-    diameters = (boxes[:,1::2] - boxes[:,::2]).max()
+    testing_points = (query_boxes[:, 1::2] + query_boxes[:, ::2]) / 2
+    targets_points = (boxes[:, 1::2] + boxes[:, ::2]) / 2
+    diameters = (boxes[:, 1::2] - boxes[:,::2]).max()
     norm = np.linalg.norm(
         -np.expand_dims(testing_points, axis=1) 
-        +targets_points, axis=2)
+        +targets_points, axis = 2)
     return norm > diameters
+
 
 def evaluate(
     generator,
@@ -298,30 +257,17 @@ def evaluate(
     """
     # gather all detections and annotations
     all_detections, all_annotations     = getResults(generator, model, transfer,  window_size=window_size, sliding_strides=sliding_strides, nms=nms,  score_threshold=score_threshold, max_detections=max_detections)
-#    print('all_detections\n',all_detections)
-#    print('all_annotations\n',all_annotations)
-
-#    all_annotations    = _getAnnotations(generator)
     average_precisions = {}
-
-
-    # all_detections = pickle.load(open('all_detections.pkl', 'rb'))
-    # all_annotations = pickle.load(open('all_annotations.pkl', 'rb'))
-    # pickle.dump(all_detections, open('all_detections.pkl', 'wb'))
-    # pickle.dump(all_annotations, open('all_annotations.pkl', 'wb'))
-
 
     # process detections and annotations
     for label in range(generator.numClasses()):
         if not generator.hasLabel(label):
             continue
 
-
         false_positives = np.zeros((0,))
         true_positives  = np.zeros((0,))
         scores          = np.zeros((0,))
         num_annotations = 0.0
-
 
         for i in range(generator.size()):
             detections           = all_detections[i][label]
@@ -329,10 +275,8 @@ def evaluate(
             num_annotations     += annotations.shape[0]
             detected_annotations = []
 
-
             for d in detections:
                 scores = np.append(scores, d[4])
-
 
                 if annotations.shape[0] == 0:
                     false_positives = np.append(false_positives, 1)
@@ -355,55 +299,51 @@ def evaluate(
                     false_positives = np.append(false_positives, 1)
                     true_positives  = np.append(true_positives, 0)
 
-            #record in a image
+            # record in a image
             def recorderAtImageLevel(recording):
                 if 'fpd' in recording: 
-                   # fps tag for newest set of detections
-                   fps  = false_positives[-len(detections):]
-                   fpd = recording['fpd']
-                   if label not in fpd:
+                    # fps tag for newest set of detections
+                    fps  = false_positives[-len(detections):]
+                    fpd = recording['fpd']
+                    if label not in fpd:
                         fpd[label] = []
-                   fpd[label].append(
-                       np.array([ d for fp, d in zip(fps, detections) if fp])
-                   )
+                    fpd[label].append(
+                        np.array([ d for fp, d in zip(fps, detections) if fp])
+                    )
             recorderAtImageLevel(recording)
                     
-
         # no annotations -> AP for this class is 0 (is this correct?)
         if num_annotations == 0:
             average_precisions[label] = 0, 0
             continue
-
 
         # sort by score
         indices         = np.argsort(-scores)
         false_positives = false_positives[indices]
         true_positives  = true_positives[indices]
 
-
         # compute false positives and true positives
         false_positives = np.cumsum(false_positives)
         true_positives  = np.cumsum(true_positives)
 
-
         # compute recall and precision
         recall    = true_positives / num_annotations
         precision = true_positives / np.maximum(true_positives + false_positives, np.finfo(np.float64).eps)
+
         def recorderAtLabelLevel(recording):
             if 'recall' in recording:
                 ultimate_recall = recall.max()
                 rc = recording['recall']
-                rc[label]=ultimate_recall
+                rc[label] = ultimate_recall
 
             if 'fps' in recording:
                 fps = false_positives.max() / generator.size()
-                recording['fps'][label]=fps
+                recording['fps'][label] = fps
                 
         recorderAtLabelLevel(recording)
 
         # compute average precision
         average_precision  = _computeAP(recall, precision)
         average_precisions[label] = average_precision, num_annotations
-
 
     return average_precisions

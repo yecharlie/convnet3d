@@ -2,6 +2,7 @@ import keras
 import numpy as np
 from ..utils.eval import evaluate
 
+
 def _getResults(generator, model):
     all_annotations = np.zeros((generator.size(),))
     all_detections  = np.zeros((generator.size(),))
@@ -24,10 +25,11 @@ def eval_accuracy(generator, model):
         P  = np.count_nonzero(all_annotations != 0)
         descp = '{:.0f} positives out of {:.0f} samples'.format(P, all_annotations.size),
 
-        return T / all_annotations.size, descp 
+        return T / all_annotations.size, descp
 
     all_detections, all_annotations = _getResults(generator, model)
     return _accuracy(all_detections, all_annotations)
+
 
 def eval_recall(generator, model):
     def _recall(all_detections, all_annotations):
@@ -35,12 +37,13 @@ def eval_recall(generator, model):
         P  = np.count_nonzero(all_annotations != 0)
         descp = '{:.0f} positives out of {:.0f} samples'.format(P, all_annotations.size),
         return TP / P, descp
- 
+
     all_detections, all_annotations = _getResults(generator, model)
     return _recall(all_detections, all_annotations)
 
+
 def eval_mAP(generator, model, **kwargs):
-    recording = {'recall':{}, 'fps':{}}
+    recording = {'recall': {}, 'fps': {}}
     average_precisions = evaluate(generator, model, recording = recording, **kwargs)
 
     total_instances = []
@@ -52,15 +55,8 @@ def eval_mAP(generator, model, **kwargs):
 
     recall = recording['recall'][1]
     fps    = recording['fps'][1]
-    descp =  '{:.0f} instances of class {}, of which the recall is {}, and false positives per scan(FPs) is {}'.format(average_precisions[1][1], generator.labelToName(1), recall, fps)
+    descp  = '{:.0f} instances of class {}, of which the recall is {}, and false positives per scan(FPs) is {}'.format(average_precisions[1][1], generator.labelToName(1), recall, fps)
     return mean_ap, descp
-
-
-
-
-
-
-
 
 
 class Evaluate(keras.callbacks.Callback):
@@ -101,7 +97,6 @@ class Evaluate(keras.callbacks.Callback):
 
         super(Evaluate, self).__init__()
 
-
     def on_epoch_end(self, epoch, logs=None):
         logs = logs or {}
 
@@ -118,4 +113,4 @@ class Evaluate(keras.callbacks.Callback):
             summary_value.tag = self.mode
             self.tensorboard.writer.add_summary(summary, epoch)
 
-        logs[self.mode] = self.metric 
+        logs[self.mode] = self.metric

@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def windowing(image_size, window_size, sliding_strides, mode='fill'):
     assert len(image_size) == len(window_size) == len(sliding_strides) == 3
     window_size = np.array(window_size)
@@ -16,13 +17,11 @@ def windowing(image_size, window_size, sliding_strides, mode='fill'):
         ib = np.append(ib, image_size[1] - window_size[1])
         ic = np.append(ic, image_size[2] - window_size[2])
 
-    gia, gib, gic = np.meshgrid(ia,ib,ic, indexing='ij')
+    gia, gib, gic = np.meshgrid(ia, ib, ic, indexing='ij')
 
     offsets = np.concatenate([
-        np.expand_dims(gia,axis=-1),
-        np.expand_dims(gib,axis=-1),
-        np.expand_dims(gic,axis=-1)
-        ],axis=-1
-    )
+        np.expand_dims(gia, axis=-1),
+        np.expand_dims(gib, axis=-1),
+        np.expand_dims(gic, axis=-1)
+    ], axis=-1)
     return offsets.reshape((-1, 3))
-
