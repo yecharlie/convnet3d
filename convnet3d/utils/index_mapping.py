@@ -105,7 +105,7 @@ class IndexMap:
 
         if not isinstance(indices, np.ndarray):
             indices = np.array(indices)
-        
+
         if indices.shape[-1] != self.C.size:
             raise ValueError('indices shape {} isn\'t consistant with model input size {}'.format(indices.shape, self.C.size))
         return np.apply_along_axis(onePointMapping, -1, indices)

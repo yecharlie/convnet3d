@@ -11,7 +11,7 @@ from convnet3d.models import (
 def test_init():
     with pytest.raises(ValueError) as einfo:
         model = reductionModel()
-        imap = IndexMap(model)  # noqa: F401 
+        imap = IndexMap(model)  # noqa: F841
     assert 'Multi inputs/outputs' in str(einfo.value)
 # After modification, the error has been eliminated.
 #     with  pytest.raises(ValueError) as einfo:
@@ -29,6 +29,6 @@ def test_mapping():
     indices = [[1, 1, 1], [10, 10, 10]]
     mapped = [[7, 16, 16], [16, 34, 34]]
 
-    assert_allclose(imap(indices),mapped)
+    assert_allclose(imap(indices), mapped)
 # approx is not for nested array
 #    assert imap(indices) == pytest.approx(mappped)

@@ -5,6 +5,7 @@ from six import raise_from
 from collections import Iterable
 from deprecated import deprecated
 
+
 def openForCsv(path):
     """ Open a file with flags suitable for csv.reader.
     This is different for python2 it means with mode 'rb',
@@ -94,12 +95,12 @@ def computeOverlaps(boxes, query_boxes):
 
 def readAnnotations(csv_reader, classes):
     """ Read annotations from the csv_reader.
-    
+
     For each row in file should be with this format (img_file,class,x,y,z,d), which consistes of four parts: 1) image locations,"img_file"; 2) label, "class"; 3) coordinates related, "x,y,z";4) size related ,"d".
     Support omited "x","y","z","d", with the format (img_file,class,,,,) when the respective record dicts   have single field 'class'.
 
     Returns:
-        rows:  A dict, keyed by 'img_file', return the values list of rcords dict with fields "class", "coords", "diameter". 
+        rows:  A dict, keyed by 'img_file', return the values list of rcords dict with fields "class", "coords", "diameter".
     """
     result = {}
 
@@ -125,7 +126,7 @@ def readAnnotations(csv_reader, classes):
         if (x, y, z, d) == ('', '', '', ''):
             result[img_file].append(dic)
             continue
-            
+
         x = parse(x, float, 'line {}: malformed x: {{}}'.format(line))
         y = parse(y, float, 'line {}: malformed y: {{}}'.format(line))
         z = parse(z, float, 'line {}: malformed z: {{}}'.format(line))
@@ -160,5 +161,5 @@ def readClasses(csv_reader):
 
     if 'bg' not in result or result['bg'] != 0:
         raise ValueError('Bockgound mapping error (should be "bg"-> 0)')
-        
+
     return result

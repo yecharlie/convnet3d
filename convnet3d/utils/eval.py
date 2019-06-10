@@ -125,7 +125,7 @@ def getResults(
                 window[:, :, :, :] = image[
                     ofs[0]:ofs[0] + window_size[0],
                     ofs[1]:ofs[1] + window_size[1],
-                    ofs[2]:ofs[2] + window_size[2], :] 
+                    ofs[2]:ofs[2] + window_size[2], :]
             else:
                 window[:, :, :, :] = image[
                     :,

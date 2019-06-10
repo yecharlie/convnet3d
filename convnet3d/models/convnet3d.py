@@ -30,7 +30,7 @@ def convnet3dModel1b(
 
     Args:
         fpr_model        : The False Positive Reduction model, could be a model with multi-outputs (regression,classification) or a list of submodels. The first submodel/subouput of fpr_model is regarded as regression model, the second is classification model.
-        cs_model         : The candidates screening model to generate proposals. 
+        cs_model         : The candidates screening model to generate proposals.
         map_args         : Establishs a affine mapping (with diagonal matrix) from output indices back to input coordinates. in_coords = out_coords * map_args[0] + map_args[1]. If not given, this argument is estimated automatically according to cs model architecture.
         max_proposals    : Maximum number of proposals
         score_threshold : Scores threshold for non maximum supression (nms).

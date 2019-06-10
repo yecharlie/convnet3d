@@ -33,4 +33,4 @@ class TestReductionModel(object):
 
 class TestConvnet3dModel(object):
     def test_simple(self):
-        model = convnet3dModel()  # noqa: F401
+        model = convnet3dModel()  # noqa: F841

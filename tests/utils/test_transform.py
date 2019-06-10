@@ -34,22 +34,24 @@ def test_random_translation():
 
 
 def test_horizontal_rotation():
-    assert_almost_equal(colvec( 1,  0, 1),horizontalRotation(0.0 * pi).dot(colvec(1, 0, 1)))
-    assert_almost_equal(colvec( 0,  1, 1),horizontalRotation(0.5 * pi).dot(colvec(1, 0, 1)))
-    assert_almost_equal(colvec(-1,  0, 1),horizontalRotation(1.0 * pi).dot(colvec(1, 0, 1)))
-    assert_almost_equal(colvec( 0, -1, 1),horizontalRotation(1.5 * pi).dot(colvec(1, 0, 1)))
-    assert_almost_equal(colvec( 1,  0, 1),horizontalRotation(2.0 * pi).dot(colvec(1, 0, 1)))
+    assert_almost_equal(colvec( 1,  0, 1), horizontalRotation(0.0 * pi).dot(colvec(1, 0, 1)))
+    assert_almost_equal(colvec( 0,  1, 1), horizontalRotation(0.5 * pi).dot(colvec(1, 0, 1)))
+    assert_almost_equal(colvec(-1,  0, 1), horizontalRotation(1.0 * pi).dot(colvec(1, 0, 1)))
+    assert_almost_equal(colvec( 0, -1, 1), horizontalRotation(1.5 * pi).dot(colvec(1, 0, 1)))
+    assert_almost_equal(colvec( 1,  0, 1), horizontalRotation(2.0 * pi).dot(colvec(1, 0, 1)))
 
-    assert_almost_equal(colvec( 0,  1, 1),horizontalRotation(0.0 * pi).dot(colvec(0, 1, 1)))
-    assert_almost_equal(colvec(-1,  0, 1),horizontalRotation(0.5 * pi).dot(colvec(0, 1, 1)))
-    assert_almost_equal(colvec( 0, -1, 1),horizontalRotation(1.0 * pi).dot(colvec(0, 1, 1)))
-    assert_almost_equal(colvec( 1,  0, 1),horizontalRotation(1.5 * pi).dot(colvec(0, 1, 1)))
-    assert_almost_equal(colvec( 0, 1, 1), horizontalRotation(2.0 * pi).dot(colvec(0, 1, 1)))
+    assert_almost_equal(colvec( 0,  1, 1), horizontalRotation(0.0 * pi).dot(colvec(0, 1, 1)))
+    assert_almost_equal(colvec(-1,  0, 1), horizontalRotation(0.5 * pi).dot(colvec(0, 1, 1)))
+    assert_almost_equal(colvec( 0, -1, 1), horizontalRotation(1.0 * pi).dot(colvec(0, 1, 1)))
+    assert_almost_equal(colvec( 1,  0, 1), horizontalRotation(1.5 * pi).dot(colvec(0, 1, 1)))
+    assert_almost_equal(colvec( 0, 1, 1),  horizontalRotation(2.0 * pi).dot(colvec(0, 1, 1)))
+
 
 def test_random_hor_rotation():
     prng = np.random.RandomState(0)
     for i in range(100):
         assert_almost_equal(1, np.linalg.det(randomHorRotation(-i, i, prng)))
+
 
 def test_scacling():
     assert_almost_equal(colvec(1, 2, 1), scaling((1.0, 1.0, 1.0)).dot(colvec(1, 2, 1)))
@@ -83,7 +85,7 @@ def test_random_flip():
 
 
 def box_to_point(box):
-    x1,x2,y1,y2,z1,z2 = box
+    x1, x2, y1, y2, z1, z2 = box
     points = np.array([
         [x1, x2, x1, x2, x1, x2, x1, x2],
         [y1, y1, y2, y2, y1, y1, y2, y2],

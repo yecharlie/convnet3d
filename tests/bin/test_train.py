@@ -1,16 +1,16 @@
 # import convnet3d.bin.train
 # import keras.backend as K
-# 
+#
 # import pytest
-# 
+#
 # @pytest.fixture(autouse=True)
 # def clear_session():
 #     #run before test
 #     yield
-# 
+#
 #     #run after test, clear keras session
 #     K.clear_session()
-# 
+#
 # def test_windowing():
 #     convnet3d.bin.train.main([
 #         '--epochs=1',

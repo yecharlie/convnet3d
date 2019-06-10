@@ -29,7 +29,7 @@ class TestBoxes(object):
         # (0,0,1) -> (1,1,2)
         # (1,1,2) -> (-4,6,-9,11,-8,12)
         expected_boxes[0, 1] = np.array([-4, 6, -9, 11, -8, 12], dtype=K.floatx())
-        expected_probs = np.zeros((1, 2, 2),dtype=K.floatx())
+        expected_probs = np.zeros((1, 2, 2), dtype=K.floatx())
         np.testing.assert_array_equal(actual_boxes, expected_boxes)
         np.testing.assert_array_equal(actual_probs, expected_probs)
 
@@ -82,7 +82,7 @@ class TestClipBoxes(object):
         expected_boxes = np.array([
             [[0, 8, 2, 8, 0, 6]],
             [[90, 100, 180, 200, 180, 200]]
-        ],dtype=K.floatx())
+        ], dtype=K.floatx())
         np.testing.assert_array_equal(actual_boxes, expected_boxes)
 
     def test_load_model(self):
@@ -130,7 +130,7 @@ class TestResizeBoxes(object):
         expected_boxes = np.array([[
             [-4, 6, -14, 16, -14, 16],
             [0, 0, 0, 0, 0, 0]
-        ]],dtype=K.floatx())
+        ]], dtype=K.floatx())
         expected_labels = K.eval(labels)
 
         np.testing.assert_array_equal(actual_boxes,  expected_boxes)
@@ -184,12 +184,12 @@ class TestRegressBoxes(object):
             [-0.1, -0.1, -0.1, 0.1]
         ]], dtype=K.floatx())
         regression = K.constant(regression)
-        actual_boxes = regress_boxes_layer.call([boxes,regression])
+        actual_boxes = regress_boxes_layer.call([boxes, regression])
         actual_boxes = K.eval(actual_boxes)
 
-        expb1 = tobbox([5,    5,    5],    np.sqrt(3) * 10)
-        expb2 = tobbox([75.5 ,75.5, 75.5], np.sqrt(3) * 50)
-        expb3 = tobbox([74.5 ,74.5, 74.5], np.exp(0.02) * np.sqrt(3) * 50)
+        expb1 = tobbox([5,     5,    5],    np.sqrt(3) * 10)
+        expb2 = tobbox([75.5 , 75.5, 75.5], np.sqrt(3) * 50)
+        expb3 = tobbox([74.5 , 74.5, 74.5], np.exp(0.02) * np.sqrt(3) * 50)
         expected_boxes = np.array([[
             expb1,
             expb2,
@@ -204,15 +204,15 @@ class TestRegressBoxes(object):
         std = [0.2, 0.2, 0.2, 0.2]
 
         regress_boxes_layer = layers.RegressBoxes(mean=mean, std=std)
-    
+
         boxes = np.array([
-           [[0,  10,  0,  10,  0,  10],
-            [50, 100, 50, 100, 50, 100],
-            [50, 100, 50, 100, 50, 100]],
-                                   
-           [[50, 100, 50, 100, 50, 100],  # 3
-            [0,  10,  0,  10,  0,   10],  # 1
-            [50, 100, 50, 100, 50, 100]]  # 2
+            [[0,  10,  0,  10,  0,  10],
+             [50, 100, 50, 100, 50, 100],
+             [50, 100, 50, 100, 50, 100]],
+
+            [[50, 100, 50, 100, 50, 100],  # 3
+             [0,  10,  0,  10,  0,   10],  # 1
+             [50, 100, 50, 100, 50, 100]]  # 2
         ], dtype=K.floatx())
         boxes = K.constant(boxes)
 
@@ -220,7 +220,7 @@ class TestRegressBoxes(object):
             [[0, 0, 0, 0],
              [0.1, 0.1, 0.1, 0],
              [-0.1, -0.1, -0.1, 0.1]],
- 
+
             [[-0.1, -0.1, -0.1, 0.1],  # 3
              [0, 0, 0, 0],  # 1
              [0.1, 0.1, 0.1, 0]]  # 2
