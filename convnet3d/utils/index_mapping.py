@@ -1,4 +1,4 @@
-import operator 
+import operator
 import numpy as np
 
 
@@ -25,7 +25,7 @@ def _printLayersInfo(model):
     # for debugging
     for idx, layer in enumerate(model.layers):
         print('{:3d} class name:{}, layer config {}'.format(idx, layer.__class__.__name__, layer.get_config()))
-        
+
 
 def configureChecker(config):
     def decoratedOperator(operator):
@@ -40,7 +40,7 @@ def configureChecker(config):
             return operator(*modified_operands)
         return prequeryOperands
     return decoratedOperator
-            
+
 
 class IndexMap:
     def __init__(self, model):
@@ -92,7 +92,7 @@ class IndexMap:
                 except KeyError:
                     # no constrinas, supported layer
                     return True, layer_category
-                    
+
         # Not suppoerted categories
         return False, layer_category
 
@@ -109,5 +109,3 @@ class IndexMap:
         if indices.shape[-1] != self.C.size:
             raise ValueError('indices shape {} isn\'t consistant with model input size {}'.format(indices.shape, self.C.size))
         return np.apply_along_axis(onePointMapping, -1, indices)
-        
-

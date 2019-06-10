@@ -22,7 +22,7 @@ def tobbox(centroids, sides):
 
 
 def computeOverlaps(boxes, query_boxes):
-    '''Compute the IoU overlaps 
+    '''Compute the IoU overlaps
 
     Args:
         boxes       : Tensor of shape (N, 6) of boxes where each box is (a1,a2,b1,b2,c1,c2).
@@ -70,10 +70,10 @@ def bboxTransformInv_v2(boxes, deltas, mean=None, std=None):
     if std is None:
         std = [0.2, 0.2, 0.2, 0.2]
 
-    #Note the reversed coordinates
-    centroidz  =( boxes[:, :, 1] + boxes[:, :, 0]) / 2
-    centroidy  =( boxes[:, :, 3] + boxes[:, :, 2]) / 2
-    centroidx  =( boxes[:, :, 5] + boxes[:, :, 4]) / 2
+    # Note the reversed coordinates
+    centroidz  = ( boxes[:, :, 1] + boxes[:, :, 0]) / 2
+    centroidy  = ( boxes[:, :, 3] + boxes[:, :, 2]) / 2
+    centroidx  = ( boxes[:, :, 5] + boxes[:, :, 4]) / 2
     depth  = boxes[:, :, 1] - boxes[:, :, 0]
     width  = boxes[:, :, 3] - boxes[:, :, 2]
     height = boxes[:, :, 5] - boxes[:, :, 4]

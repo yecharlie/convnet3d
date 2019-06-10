@@ -18,7 +18,7 @@ def _getResults(generator, model):
         all_detections[i] = predictions.argmax(axis=1)[0]
     return all_detections, all_annotations
 
-   
+
 def eval_accuracy(generator, model):
     def _accuracy(all_detections, all_annotations):
         T  = np.count_nonzero(all_detections = all_annotations)

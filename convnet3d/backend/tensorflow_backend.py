@@ -3,12 +3,12 @@ import tensorflow as tf
 
 def _is_tensor(x):
     """Returns `True` if `x` is a symbolic tensor-like object.
- 
+
     From http://github.com/tensorflow/tensorflow/blob/master/tensorflow/python/ops/image_ops_impl.py
- 
+
     Args:
         x: A python object to check.
- 
+
     Returns:
         `True` if `x` is a `tf.Tensor` or `tf.Variable`, otherwise `False`.
     """
@@ -17,13 +17,13 @@ def _is_tensor(x):
 
 def _ImageDimensions(image, rank):
     """Returns the dimensions of an image tensor.
-  
+
     From http://github.com/tensorflow/tensorflow/blob/master/tensorflow/python/ops/image_ops_impl.py
-  
+
     Args:
         image: A rank-D Tensor. For 3-D  of shape: `[height, width, channels]`.
         rank: The expected rank of the image
-  
+
     Returns:
         A list of corresponding to the dimensions of the
         input image.  Dimensions that are statically known are python integers,
@@ -71,9 +71,8 @@ def _CheckAtLeast4DImage(image, require_static=True):
     if not image_shape.is_fully_defined():
         return [
             tf.assert_positive(
-              tf.shape(image),
-              ["all dims of 'image.shape' "
-               'must be > 0.'])
+                tf.shape(image),
+                ['all dims of "image.shape " must be > 0.'])
         ]
     else:
         return []
@@ -175,8 +174,8 @@ def crop_to_bounding_box_3d(image, box, target_size):
         paddings = tf.reshape(
             tf.stack([
                 0, 0, padding_offsets[0], after_padding_size[0],
-                      padding_offsets[1], after_padding_size[1], # noqa: E131
-                      padding_offsets[2], after_padding_size[2], 0, 0 # noqa: E131
+                      padding_offsets[1], after_padding_size[1],  # noqa: E131
+                      padding_offsets[2], after_padding_size[2], 0, 0  # noqa: E131
         ]), [5, 2])
         padded = tf.pad(cropped, paddings)
 

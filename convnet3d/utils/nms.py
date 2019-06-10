@@ -5,6 +5,7 @@ https://github.com/rbgirshick/py-faster-rcnn/blob/master/lib/nms/py_cpu_nms.py
 
 import numpy as np
 
+
 def nmsOverlaps(overlaps, scores, threshold):
     assert (np.diagonal(overlaps) == 1).all()
     assert 0 < threshold < 1
@@ -19,4 +20,3 @@ def nmsOverlaps(overlaps, scores, threshold):
         order = order[inds]
 
     return keep
-

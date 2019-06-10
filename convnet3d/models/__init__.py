@@ -58,7 +58,7 @@ def CBALayers(coptions, boptions={}, activation='relu', **kwargs):
     Other arguments are sent to keras.layers.Activation
 
     Arguments:
-        coptions    
+        coptions
         boptions
         activation
         **kargs
@@ -78,10 +78,11 @@ def CBALayers(coptions, boptions={}, activation='relu', **kwargs):
 
         outputs = BatchNorm(**boptions)(outputs)
 
-        outputs = keras.layers.Activation(activation,**kwargs)(outputs)
+        outputs = keras.layers.Activation(activation, **kwargs)(outputs)
         return outputs
 
     return _CBALayers
+
 
 def BatchNorm(**kwargs):
     def _BatchNorm(inputs):
@@ -90,7 +91,7 @@ def BatchNorm(**kwargs):
         return keras.layers.normalization.BatchNormalization(**boptions)(inputs)
 
     return _BatchNorm
- 
+
 
 def submodels(model):
     models = [keras.models.Model(inputs=model.inputs, outputs=output) for output in model.outputs]

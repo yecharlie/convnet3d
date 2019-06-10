@@ -26,7 +26,7 @@ def _transformBbox(box, image, transform):
 
 
 class ValidationGenerator(Generator):
-    #@overrides
+    # @overrides
     def loadImage(self, image_index):
         image_path = self.image_names[image_index]
         image = readSeries(image_path)
@@ -35,7 +35,7 @@ class ValidationGenerator(Generator):
 
     # @overrides
     def preprocessGroupEntry(self, image, annotations):
-        image, annotations = makeIsotropic(image,annotations)
+        image, annotations = makeIsotropic(image, annotations)
         # convert image to ndarray
         imgarr = sitk.GetArrayFromImage(image)
         if len(imgarr.shape) == 3:

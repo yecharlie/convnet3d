@@ -2,7 +2,7 @@ import numpy as np
 
 import keras
 import keras.backend as K
-from .. import backend 
+from .. import backend
 
 
 class RoiCropper(keras.layers.Layer):
@@ -21,7 +21,7 @@ class RoiCropper(keras.layers.Layer):
 #        fpr_input = K.stop_gradient(fpr_input)
 #
 #        fpr_input_shape = K.cast(K.shape(fpr_input), dtype='int32')
-#        fpr_int_shape = K.int_shape(fpr_input) 
+#        fpr_int_shape = K.int_shape(fpr_input)
 
 #        assert len(fpr_int_shape) == 5
 

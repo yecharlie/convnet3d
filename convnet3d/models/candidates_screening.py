@@ -95,7 +95,7 @@ def detectionPred(
             imap = IndexMap(cs_model)
             map_args = imap.D, imap.C
         except ValueError as e:
-            raise_from(ValueError('Couldn\'t automatically infer map arguments. Please set it manually.'),e)
+            raise_from(ValueError('Couldn\'t automatically infer map arguments. Please set it manually.'), e)
 
     inputs = cs_model.inputs
     image = inputs[0]

@@ -42,14 +42,14 @@ def readImage(path, sides, *centroids, reader=readSeries, convert_centroids=True
     resampled, transform = isotropic(image)
     resampled_size = np.array(resampled.GetSize())
     new_centroids = []
-    
+
     def isotropicSpace(centroid):
         newc = image.TransformContinuousIndexToPhysicalPoint(centroid.astype(np.float64))
         newc = np.array(transform.GetInverse().TransformPoint(newc))
         return newc
-        
+
     def isBboxValid(bbox, size):
-        return np.all(bbox[::2] >= 0) and np.all(bbox[1::2] <= size ) 
+        return np.all(bbox[::2] >= 0) and np.all(bbox[1::2] <= size )
 
     for idx, centroid in enumerate(centroids):
         # compute the new centroid in the resampled image
@@ -70,10 +70,10 @@ def readImage(path, sides, *centroids, reader=readSeries, convert_centroids=True
 
         if len(arr.shape) == 3:
             # add channel dim
-            arr = arr.reshape(arr.shape+(1,))
+            arr = arr.reshape(arr.shape + (1,))
         elif len(arr.shape) != 4:
             raise ValueError('Unexpected series data')
-            
+
         arr_list.append(arr)
         new_centroids.append(newc)
         indices.append(idx)
@@ -123,12 +123,12 @@ def createRefDomain(image):
     ref_image.SetDirection(ref_direction)
     return ref_image
 
-    
+
 def transformImage(
-    imgarr, 
-    matrix, 
-    translation, 
-    relativeTranslatiuon=True,  
+    imgarr,
+    matrix,
+    translation,
+    relativeTranslatiuon=True,
     interpolator=sitk.sitkLinear,
     defaultPixelValue=0.0,
     outputPixelType=sitk.sitkUnknown,
@@ -152,7 +152,7 @@ def transformImage(
     depth, width, height, channels = imgarr.shape
     if channels == 1:
         imgarr = np.squeeze(imgarr, axis = 3)
-        
+
     image = sitk.GetImageFromArray(imgarr)
     center = np.array([height // 2, width // 2, depth // 2])
     if relativeTranslatiuon:
@@ -171,5 +171,5 @@ def transformImage(
         resampled = resampled.reshape(resampled.shape + (1,))
     elif len(resampled.shape) != 4:
         raise ValueError('Unexpected image data')
- 
+
     return resampled, affine

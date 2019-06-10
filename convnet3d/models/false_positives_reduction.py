@@ -72,13 +72,13 @@ def reductionModel1b(
     )(outputs)
 
     outputs = ResidualUnit(
-        coptions1={'kernel_size':[3, 3, 3], 'filters': 64, 'kernel_regularizer': keras.regularizers.l2(1e-4)},
-        coptions2={'kernel_size':[3, 3, 3], 'filters': 64, 'kernel_regularizer': keras.regularizers.l2(1e-4)},
+        coptions1={'kernel_size': [3, 3, 3], 'filters': 64, 'kernel_regularizer': keras.regularizers.l2(1e-4)},
+        coptions2={'kernel_size': [3, 3, 3], 'filters': 64, 'kernel_regularizer': keras.regularizers.l2(1e-4)},
         ruid=1
     )(outputs)
 
     outputs = BatchNorm(name='BN4')(outputs)
-    outputs = keras.layers.Activation('relu',name='A4')(outputs)
+    outputs = keras.layers.Activation('relu', name='A4')(outputs)
 #    reg_flatten = keras.layers.Flatten(name='FReg')(outputs)
 #    reg_dense = keras.layers.Dense(128,activation='sigmoid',name='DReg')(reg_flatten)
 #    reg_outputs = keras.layers.Dense(4,name='regression')(reg_dense)
@@ -95,8 +95,8 @@ def reductionModel1b(
     )(outputs)
 
     outputs = ResidualUnit(
-        coptions1={'kernel_size':[3, 3, 3], 'filters': 128, 'kernel_regularizer': keras.regularizers.l2(1e-4)},
-        coptions2={'kernel_size':[3, 3, 3], 'filters': 128, 'kernel_regularizer': keras.regularizers.l2(1e-4)},
+        coptions1={'kernel_size': [3, 3, 3], 'filters': 128, 'kernel_regularizer': keras.regularizers.l2(1e-4)},
+        coptions2={'kernel_size': [3, 3, 3], 'filters': 128, 'kernel_regularizer': keras.regularizers.l2(1e-4)},
         ruid=2
     )(outputs)
 
@@ -209,8 +209,8 @@ def reductionModel(
     )(outputs)
 
     outputs = ResidualUnit(
-        coptions1={'kernel_size':[3, 3, 3], 'filters': 128, 'kernel_regularizer': keras.regularizers.l2(1e-4)},
-        coptions2={'kernel_size':[3, 3, 3], 'filters': 128, 'kernel_regularizer': keras.regularizers.l2(1e-4)},
+        coptions1={'kernel_size': [3, 3, 3], 'filters': 128, 'kernel_regularizer': keras.regularizers.l2(1e-4)},
+        coptions2={'kernel_size': [3, 3, 3], 'filters': 128, 'kernel_regularizer': keras.regularizers.l2(1e-4)},
         ruid=2
     )(outputs)
 

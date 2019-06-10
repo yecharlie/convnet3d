@@ -108,7 +108,7 @@ def getResults(
         if window_size is not None and sliding_strides is not None:
             # Note the order z,y,x
             windows_offset = windowing(image_size, window_size, sliding_strides)
-        else:# i.e. no windowing
+        else:  # i.e. no windowing
             windows_offset = np.zeros((1, 3), dtype=int)
             window_size = image_size
 
@@ -131,8 +131,8 @@ def getResults(
                     :,
                     ofs[0]:ofs[0] + window_size[0],
                     ofs[1]:ofs[1] + window_size[1],
-                    ofs[2]:ofs[2] + window_size[2]] 
-            
+                    ofs[2]:ofs[2] + window_size[2]]
+
             def convnet3dOneBatchdOutputsTransfer(outputs):
                 classification, boxes = outputs[:2]
 
@@ -204,7 +204,7 @@ def getResults(
             image_detections = nms(image_detections, overlap_threshold)
 
         # at last, get top_k detections
-        image_scores = image_detections[:,6]
+        image_scores = image_detections[:, 6]
         scores_sort = np.argsort(-image_scores)[:max_detections]
         image_detections = image_detections[scores_sort]
 
@@ -213,9 +213,7 @@ def getResults(
             if not generator.hasLabel(label):
                 continue
 
-
             all_detections[i][label] = image_detections[image_detections[:, -1] == label, :-1]
-
 
     return all_detections, all_annotations
 
@@ -223,10 +221,9 @@ def getResults(
 def hitTesting(query_boxes, boxes):
     testing_points = (query_boxes[:, 1::2] + query_boxes[:, ::2]) / 2
     targets_points = (boxes[:, 1::2] + boxes[:, ::2]) / 2
-    diameters = (boxes[:, 1::2] - boxes[:,::2]).max()
+    diameters = (boxes[:, 1::2] - boxes[:, ::2]).max()
     norm = np.linalg.norm(
-        -np.expand_dims(testing_points, axis=1) 
-        +targets_points, axis = 2)
+        - np.expand_dims(testing_points, axis=1) + targets_points, axis = 2)
     return norm > diameters
 
 
@@ -290,7 +287,6 @@ def evaluate(
                 assigned_annotation = np.argmax(overlaps, axis=1)
                 max_overlap         = overlaps[0, assigned_annotation]
 
-
                 if max_overlap >= iou_threshold and assigned_annotation not in detected_annotations:
                     false_positives = np.append(false_positives, 0)
                     true_positives  = np.append(true_positives, 1)
@@ -301,7 +297,7 @@ def evaluate(
 
             # record in a image
             def recorderAtImageLevel(recording):
-                if 'fpd' in recording: 
+                if 'fpd' in recording:
                     # fps tag for newest set of detections
                     fps  = false_positives[-len(detections):]
                     fpd = recording['fpd']
@@ -311,7 +307,7 @@ def evaluate(
                         np.array([ d for fp, d in zip(fps, detections) if fp])
                     )
             recorderAtImageLevel(recording)
-                    
+
         # no annotations -> AP for this class is 0 (is this correct?)
         if num_annotations == 0:
             average_precisions[label] = 0, 0
@@ -339,7 +335,7 @@ def evaluate(
             if 'fps' in recording:
                 fps = false_positives.max() / generator.size()
                 recording['fps'][label] = fps
-                
+
         recorderAtLabelLevel(recording)
 
         # compute average precision

@@ -12,16 +12,16 @@ def filterDetections(
     max_detections    = 100,
     explicit_bg_class = True
 ):
-    print('filterDetection-boxes-shape',boxes)
+    print('filterDetection-boxes-shape', boxes)
     # get the reference
     scores  = K.max(probs, axis=1)
     labels  = K.argmax(probs, axis=1)
 
-    # perform score thresholding 
+    # perform score thresholding
     indices = backend.where(K.greater(scores, score_threshold))  # 2-D
 
     if explicit_bg_class:
-        # assume that backgroud class is labeled as 0, we will then remove those "detections" 
+        # assume that backgroud class is labeled as 0, we will then remove those "detections"
         bg_class_label = 0
 
         # repick the reference
@@ -35,7 +35,7 @@ def filterDetections(
 
         print('filterDetection-nms-indices', indices)
         print('filterDetection-nms-filtered_boxes', filtered_boxes)
-        filtered_scores = K.gather(scores,indices)[:, 0]  # 1-D
+        filtered_scores = K.gather(scores, indices)[:, 0]  # 1-D
 
         overlaps         = backend.computeOverlaps(filtered_boxes, filtered_boxes)
         selected_indices = backend.non_max_suppression_overlaps(overlaps, filtered_scores, max_detections, nms_threshold)
@@ -98,7 +98,7 @@ class Filter(keras.layers.Layer):
                 boxes = args[0],
                 probs = args[1],
                 score_threshold   = self.score_threshold,
-                nms               = self.nms,            
+                nms               = self.nms,
                 nms_threshold     = self.nms_threshold,
                 max_detections    = self.max_detections,
                 explicit_bg_class = self.explicit_bg_class
@@ -118,7 +118,7 @@ class Filter(keras.layers.Layer):
             (input_shapes[0][0], self.max_detections),
             (input_shapes[0][0], self.max_detections)
         ]
-    
+
     def compute_mask(self, inputs, mask):
         '''Just the copy from other code
         '''
@@ -127,10 +127,10 @@ class Filter(keras.layers.Layer):
     def get_config(self):
         config = super(Filter, self).get_config()
         config.update({
-            'score_threshold'     :  self.score_threshold,        
-            'nms'                 :  self.nms,                
-            'nms_threshold'       :  self.nms_threshold,      
-            'max_detections'      :  self.max_detections,     
+            'score_threshold'     :  self.score_threshold,
+            'nms'                 :  self.nms,
+            'nms_threshold'       :  self.nms_threshold,
+            'max_detections'      :  self.max_detections,
             'explicit_bg_class'   :  self.explicit_bg_class,
             'parallel_iterations' :  self.parallel_iterations
         })

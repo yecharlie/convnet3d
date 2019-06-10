@@ -8,7 +8,7 @@ import tensorflow as tf
 
 if __name__ == "__main__" and __package__ is None:
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
-    import convnet3d.bin # noqa: F401
+    import convnet3d.bin  # noqa: F401
     __package__ = "convnet3d.bin"
 
 from .. import models
@@ -65,7 +65,7 @@ def create_generators(args):
     else:
         validation_generator = None
     return train_generator, validation_generator
- 
+
 
 def create_models(num_classes, args):
     if args.model_type == 'cs':
@@ -172,7 +172,7 @@ def parse_args(args):
     parser = argparse.ArgumentParser(description='Simple training script for training the candidate screening model & false positive reduction model.')
     subparsers = parser.add_subparsers(help='Specitic the model type: cs/fpr.', dest='model_type')
     subparsers.required = True
-    cs_parser = subparsers.add_parser('cs') # noqa: F841
+    cs_parser = subparsers.add_parser('cs')  # noqa: F841
     fpr_parser = subparsers.add_parser('fpr')
     fpr_parser.add_argument('--val-cs-model', help='Path to candidate screening model, then the two model are combined to biuld a convnet3d model for validation.')
 
@@ -193,7 +193,7 @@ def parse_args(args):
     parser.add_argument('--gpu', metavar='GPUs', type=devices, default=None)
     parser.add_argument('--snapshot-path', default='./snapshots')
     parser.add_argument('--tensorboard-dir', default='./logs')
-    parser.add_argument('--no-snapshots',dest='snapshots', action='store_false')
+    parser.add_argument('--no-snapshots', dest='snapshots', action='store_false')
     parser.add_argument('--random-transform', action='store_true')
     parser.add_argument('--data-channels', default=1, type=int)
     return check_args(parser.parse_args(args))
@@ -242,8 +242,7 @@ def main(args=None):
         args
     )
 
-
-    #training
+    # training
     training_model.fit_generator(
         generator=train_generator,
         epochs=args.epochs,

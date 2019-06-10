@@ -7,11 +7,11 @@ from .. import backend
 
 class Boxes(keras.layers.Layer):
     def __init__(
-        self, 
-        box_size, 
+        self,
+        box_size,
         D=1,
-        C=0, 
-        parallel_iterations=32, 
+        C=0,
+        parallel_iterations=32,
         **kwargs
     ):
         self.D = np.array(D)
@@ -27,7 +27,7 @@ class Boxes(keras.layers.Layer):
             a = K.arange(shape[0])
             b = K.arange(shape[1])
             c = K.arange(shape[2])
-            A,B,C = backend.meshgrid(a,b,c, indexing='ij')
+            A, B, C = backend.meshgrid(a, b, c, indexing='ij')
             indices = K.concatenate([
                 K.expand_dims(A, axis=-1),
                 K.expand_dims(B, axis=-1),
@@ -98,7 +98,7 @@ class ResizeBoxes(keras.layers.Layer):
     '''
 
     def __init__(
-        self, 
+        self,
         target_size,
         mode='partial',
         parallel_iterations=32,
@@ -202,7 +202,7 @@ class RegressBoxes(keras.layers.Layer):
 
     def __init__(self, mean=None, std=None, **kwargs):
         '''Initializer
-        
+
         Args:
             mean  : The mean value used when computing deltas (defaults to [0, 0, 0, 0]).
             std   : The standard deviation used when computing deltas (defaults to [0.2, 0.2, 0.2, 0.2]).
@@ -214,7 +214,7 @@ class RegressBoxes(keras.layers.Layer):
         self.mean = np.array(mean)
         self.std  = np.array(std)
         super(RegressBoxes, self).__init__(**kwargs)
-        
+
     def call(self, inputs, **kwargs):
         boxes, regression = inputs
         return backend.bboxTransformInv_v2(boxes, regression, mean=self.mean, std=self.std)

@@ -6,7 +6,7 @@ from .generator import Generator
 
 
 def _computeTargets(image_group, annotations_group, mean=None, std=None):
-    assert len(image_group)==len(annotations_group), "The length of the images and annotations should be equal."
+    assert len(image_group) == len(annotations_group), "The length of the images and annotations should be equal."
 
     if mean is None:
         mean = [0, 0, 0, 0]

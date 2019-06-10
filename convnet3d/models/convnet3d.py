@@ -24,9 +24,9 @@ def convnet3dModel1b(
 ):
     '''The completed convolutional 3d model
 
-    When training the reduction model, this function could convert it to a predicted model. 
+    When training the reduction model, this function could convert it to a predicted model.
 
-    Note that the background calss is EXPLICITLY encoded in classification outputs of these models , i.e. num_channels == num_classes. 
+    Note that the background calss is EXPLICITLY encoded in classification outputs of these models , i.e. num_channels == num_classes. :
 
     Args:
         fpr_model        : The False Positive Reduction model, could be a model with multi-outputs (regression,classification) or a list of submodels. The first submodel/subouput of fpr_model is regarded as regression model, the second is classification model.
@@ -72,10 +72,10 @@ def convnet3dModel1b(
     inputs = cs_pred.inputs
     image = inputs[0]
     proposals = cs_pred.outputs
-    
+
     # Stage 2
     boxes  = proposals[0]
-    rois   = layers.RoiCropper(roi_size, name='roi_cropper')([image, boxes])  # roi with one channel 
+    rois   = layers.RoiCropper(roi_size, name='roi_cropper')([image, boxes])  # roi with one channel
 #    print('rois: {}; fpr_input_shape: {}.'.format(rois, fpr_input_shape))
 
     cls = keras.layers.TimeDistributed(sub_roi_models[0])(rois)
@@ -97,13 +97,13 @@ def convnet3dModel(
 ):
     '''The completed convolutional 3d model
 
-    When training the reduction model, this function could convert it to a predicted model. 
+    When training the reduction model, this function could convert it to a predicted model.
 
-    Note that the background calss is EXPLICITLY encoded in classification outputs of these models , i.e. num_channels == num_classes. 
+    Note that the background calss is EXPLICITLY encoded in classification outputs of these models , i.e. num_channels == num_classes.
 
     Args:
         fpr_model        : The False Positive Reduction model, could be a model with multi-outputs (regression,classification) or a list of submodels. The first submodel/subouput of fpr_model is regarded as regression model, the second is classification model.
-        cs_model         : The candidates screening model to generate proposals. 
+        cs_model         : The candidates screening model to generate proposals.
         map_args         : Establishs a affine mapping (with diagonal matrix) from output indices back to input coordinates. in_coords = out_coords * map_args[0] + map_args[1]. If not given, this argument is estimated automatically according to cs model architecture.
         max_proposals    : Maximum number of proposals
         score_threshold : Scores threshold for non maximum supression (nms).
@@ -174,7 +174,7 @@ def convnet3dModel(
     # Stage 2
     boxes  = proposals[0]
     labels = proposals[2]
-    rois    = layers.RoiCropper(roi_size, name='roi_cropper')([image, boxes])  # roi with one channel 
+    rois    = layers.RoiCropper(roi_size, name='roi_cropper')([image, boxes])  # roi with one channel
 #    print('rois: {}; fpr_input_shape: {}.'.format(rois, fpr_input_shape))
     vision_field, labels = layers.ResizeBoxes(roi_size, mode='all', name='cnn_vision_field')([boxes, labels])
 

@@ -7,7 +7,7 @@ import tensorflow as tf
 
 if __name__ == "__main__" and __package__ is None:
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
-    import convnet3d.bin # noqa: F401
+    import convnet3d.bin  # noqa: F401
     __package__ = "convnet3d.bin"
 
 from .. import models

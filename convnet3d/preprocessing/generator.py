@@ -123,13 +123,12 @@ class Generator(keras.utils.Sequence):
                 bbox = tobbox(centroid, diameter)
                 std_annotations['bboxes'] = np.concatenate(
                     [std_annotations['bboxes'],
-                        np.expand_dims(bbox, axis = 0)],axis=0
+                        np.expand_dims(bbox, axis = 0)], axis=0
                 )
 
         assert std_annotations['bboxes'].shape[0] == 0 or std_annotations['labels'].shape[0] == std_annotations['bboxes'].shape[0], 'unsupported dataset format with labels {}, bboxes {} for an image.'.format(std_annotations['labels'], std_annotations['bboxes'])
 
         return std_annotations
-
 
     def loadAnnotationsGroup(self, group):
         return [self.loadAnnotations(image_index) for image_index in group]
@@ -149,7 +148,7 @@ class Generator(keras.utils.Sequence):
             for index in range(annotations['bboxes'].shape[0]):
                 annotations['bboxes'][index, :] = transformBbox(annotations['bboxes'][index, :], transform)
         return image, annotations
-                
+
     def randomTransformGroup(self, image_group, annotation_group):
         assert (len(image_group) == len(annotation_group))
 
