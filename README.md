@@ -1,6 +1,6 @@
 # convnet3d
 ![Travis (.org) branch](https://img.shields.io/travis/yecharlie/convnet3d/master.svg?style=plastic)
-![GitHub](https://img.shields.io/github/license/yecharlie/convnet3d.svg)
+![GitHub](https://img.shields.io/github/license/yecharlie/convnet3d.svg?style=plastic)
 
 a two stage 3d convolutional network for object detection in medical image processing...
 
