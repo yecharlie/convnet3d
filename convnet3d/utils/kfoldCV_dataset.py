@@ -150,7 +150,7 @@ def makePatchesForDetection(
                 else:
                     marker = 'ng'
                 # the main purpose of marker is to debug
-                img_saved_path = os.path.join(pathsmps,imgname.format(cls_imgindex, marker))
+                img_saved_path = os.path.join(pathsmps, imgname.format(cls_imgindex, marker))
                 lbl = pos_annotations[idx]['class'] if idx < len(pos_annotations) else dataset_labels[0]
                 detection_csv_rows.append([img_saved_path, lbl, *smp, '', name])  # the name field mark source, which will be useful in reduction model training
 
@@ -226,7 +226,7 @@ def makePatchesForReduction(
                 samples_outdir,
                 imgname.format(cs_dataset_id, imgindex, mk)
             )
-            reduction_csv_rows.append([img_saved_path, lbl, *smp, '', series]) 
+            reduction_csv_rows.append([img_saved_path, lbl, *smp, '', series])
 
             np.save(img_saved_path, img)
             imgindex += 1
@@ -325,7 +325,7 @@ def makePatchesForReduction(
 
             # create our generator with one series only
             generator = ValidationGenerator(tmpcsv_name, classes_file)
-            recording = {'fpd':{}}  # record false positive detections
+            recording = {'fpd': {}}  # record false positive detections
 
             # evaluate
             evaluate(
