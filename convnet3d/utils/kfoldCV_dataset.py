@@ -82,6 +82,7 @@ def makePatchesForDetection(
     # Mapping file
     pathmp = os.path.join(out_dir, MAPPING_NAME)
     createMappingCSV(pathmp, dataset_classes)
+    print('Create mapping file', pathmp)
 
     cls_sides = np.array(cls_sides)
 
