@@ -27,6 +27,8 @@ The `convnet3d/utils/kfold_dataset.py` is a demo that show how to generate datas
     path/to/series,class,x,y,z,d,group
     ```
     where `x,y,z` are zero-based and `group` is id/tag of series, one series one id, which could be a number started from 0. 
+
+    In addition configure the default mapping via `DATASET_CLASSES` and `DATASET_LABELS`. It may contain multiple classes and in whichever situation the background class musted be included. (`bg, 0`) 
 2.  Input the original csv dataset to `makeKFold` to get k fold dataset for k-fold-cross-validation. (`kfoldCV`)
 3.  Input the kfoldCV dataset to `makePatchesForDetection` to generate patches dataset for candidates screening model. Now the format of each line for patches dataset comes:
     ```
