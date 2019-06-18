@@ -2,7 +2,7 @@
 ![Travis (.org) branch](https://img.shields.io/travis/yecharlie/convnet3d/master.svg?style=plastic)
 ![GitHub](https://img.shields.io/github/license/yecharlie/convnet3d.svg?style=plastic)
 
-a two stage 3d convolutional network for object detection in medical image processing...
+A two stage 3d convolutional network for object detection in medical image processing...
 
 Basically, this project is an (**non official**) reimplementation of the paper ["Automated Pulmonary Nodule Detection via 3D ConvNets with Online Sample Filtering and Hybrid-Loss Residual Learning" ](http://arxiv.org/abs/1708.03867 ).
 
@@ -11,13 +11,35 @@ However this project varies from what the paper states in the flowing aspects:
 - This model adopts a different input size, (15, 30, 30) on the first stage, (25, 60, 60) on the second stage, which is intened to aneurysm detection.
 - The data augmentation strategy.
 
-## Results on Aeurysms Detection
+## Results on Aneurysms Detection
 recall(%) | FPs (False Positives per Scan
 --------  | -----------------------------
 88.64     | 28.52
 
 ## Supported Environments
-This project is developed on **keras** and **tensorflow** and tested on **python3.6**. In the future, It may add **python2.7** support.
+This project is developed on **keras** and **tensorflow** and tested on **python3.6**. 
+
+## Usage
+The 'convnet3d/utils/kfold\_dataset.py' is a demo that show how to generate dataset based on the existing functionalities of this project. Overall, the steps are:
+
+1. Prepare the original dataset in csv file. The expected format of each line is:
+'''
+path/to/series,class,x,y,z,d,group
+'''
+where 'group' is id/tag of series, one series one id, which could be a number started from 0.  
+2. Input the original csv dataset to 'makeKFold' for k-fold-cross-validation. ('kfoldCV')
+3. Input the kfoldCV dataset to 'makePatchesForDetection' to generate patches dataset for candidates screening model. Now the format of each line of the patches comes:
+'''
+/path/to/patch,class,x,y,z,d,path/to/series
+'''
+with 'path/to/series' indicates where this patches comes from, and x,y,z are zero-based. (cs-dataset)
+4. Train the candidates scrrening model with one fold of patches 'cs-dataset'. ('cs-model')
+5. Input the trained 'cs-model' as well as the related patches 'cs-dataset' to 'makePatchesForReduction' to generate patches dataset for false positive reduction model. ('fpr-dataset')
+6. Train the false positive reduction model with 'cs-model' (for transfer learning) and patches 'fpr-dataset'. ('fpr-model') 
+7. Repeat 4-6 for 'kfoldCV'.
+
+## TODO 
+Add **python2.7** support.
 
 ## Notes
 If you want to develop a framework exactly as the paper states, you may find all the neccessary components already shiping in. Thus you should merely rewrite a training script and a evaluation script. One suggestion is you should be careful the Out-of-Memory (OOM) error when combining the evaluation callback with training process. 
