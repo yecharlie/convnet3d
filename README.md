@@ -20,23 +20,23 @@ recall(%) | FPs (False Positives per Scan
 This project is developed on **keras** and **tensorflow** and tested on **python3.6**. 
 
 ## Usage
-The 'convnet3d/utils/kfold\_dataset.py' is a demo that show how to generate dataset based on the existing functionalities of this project. Overall, the steps are:
+The `convnet3d/utils/kfold\_dataset.py` is a demo that show how to generate dataset and train model based on the existing functionalities of this project. Overall, the steps are:
 
 1. Prepare the original dataset in csv file. The expected format of each line is:
-'''
+```
 path/to/series,class,x,y,z,d,group
-'''
-where 'group' is id/tag of series, one series one id, which could be a number started from 0.  
-2. Input the original csv dataset to 'makeKFold' for k-fold-cross-validation. ('kfoldCV')
-3. Input the kfoldCV dataset to 'makePatchesForDetection' to generate patches dataset for candidates screening model. Now the format of each line of the patches comes:
-'''
+```
+where 'group' is id/tag of series, one series one id, which could be a number started from 0. 
+2. Input the original csv dataset to `makeKFold` for k-fold-cross-validation. (`kfoldCV`)
+3. Input the kfoldCV dataset to `makePatchesForDetection` to generate patches dataset for candidates screening model. Now the format of each line of the patches comes:
+```
 /path/to/patch,class,x,y,z,d,path/to/series
-'''
-with 'path/to/series' indicates where this patches comes from, and x,y,z are zero-based. (cs-dataset)
-4. Train the candidates scrrening model with one fold of patches 'cs-dataset'. ('cs-model')
-5. Input the trained 'cs-model' as well as the related patches 'cs-dataset' to 'makePatchesForReduction' to generate patches dataset for false positive reduction model. ('fpr-dataset')
-6. Train the false positive reduction model with 'cs-model' (for transfer learning) and patches 'fpr-dataset'. ('fpr-model') 
-7. Repeat 4-6 for 'kfoldCV'.
+```
+with `path/to/series` indicates where this patches comes from, and `x,y,z` are zero-based. (`cs-dataset`)
+4. Train the candidates scrrening model with one fold of patches `cs-dataset`. (`cs-model`)
+5. Input the trained `cs-model` as well as the related patches `cs-dataset` to `makePatchesForReduction` to generate patches dataset for false positive reduction model. (`fpr-dataset`)
+6. Train the false positive reduction model with `cs-model` (for transfer learning) and patches `fpr-dataset`. (`fpr-model`) 
+7. Repeat 4-6 for `kfoldCV`.
 
 ## TODO 
 Add **python2.7** support.
